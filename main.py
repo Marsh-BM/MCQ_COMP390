@@ -48,6 +48,7 @@ import os
 import cv2
 import torch
 from cuda_train import Net
+import csv
 
 # def main():
 #     # 定义PDF文件路径和输出文件夹路径
@@ -63,10 +64,43 @@ from cuda_train import Net
 #     # 调用PDF处理函数
 #     pdf_processing(pdf_path, output_folder)
 
+def compare_answers(standard_csv_path, prediction_csv_path):
+    standard_answers = {}
+    with open(standard_csv_path, 'r') as file:
+        reader = csv.reader(file)
+        next(reader)  # 跳过表头
+        for row in reader:
+            question_number, answer = row[1], row[4]
+            standard_answers[question_number] = answer
+    
+    correct_count = 0
+    total_count = 0
+    errors = []  # 用于收集错误的题目信息
+    with open(prediction_csv_path, 'r') as file:
+        reader = csv.reader(file)
+        next(reader)  # 跳过表头
+        for row in reader:
+            question_number, prediction = row[1], row[4]
+            if question_number in standard_answers:
+                total_count += 1
+                if prediction == standard_answers[question_number]:
+                    correct_count += 1
+                else:
+                    errors.append((question_number, prediction, standard_answers[question_number]))  # 收集错误信息
+    
+    accuracy = correct_count / total_count * 100 if total_count > 0 else 0
+    print(f"Total Questions: {total_count}, Correct: {correct_count}, Accuracy: {accuracy:.2f}%")
+    if errors:
+        print("Incorrect Questions:")
+        for error in errors:
+            print(f"Question Number: {error[0]}, Prediction: {error[1]}, Correct Answer: {error[2]}")
+
+
+
 def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = Net().to(device)
-    model_path = 'Blank_epoch=10_lr=0.01_de2_accuracy'  # 模型文件路径
+    model_path = 'Blank_epoch=10_lr=0.01_de_accuracy'  # 模型文件路径
     model.load_state_dict(torch.load(model_path, map_location=device))
     model.eval()
 
@@ -77,7 +111,12 @@ def main():
         os.makedirs(output_folder)
 
     pdf_processing(pdf_path, output_folder, model, device)
+    # compare_answers('results_txt/Correct_Answer.csv','results_txt/results_page_0.csv')
+
+
+
 
 
 if __name__ == "__main__":
-    main()
+    # main()
+    compare_answers('results_txt/Correct_Answer.csv','results_txt/results_page_0.csv')
