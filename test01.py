@@ -1,0 +1,5 @@
+# import torch
+# print(torch.__version__)
+# print(torch.cuda.is_available())
+import os
+os.environ['KMP_DUPLICATE_LIB_OK']='TRUE'
