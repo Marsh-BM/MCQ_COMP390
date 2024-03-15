@@ -40,7 +40,7 @@ def crop(rotated, contours, h, w):
     # 裁剪出矩形答题区域
     # rotated = rotated[min(y1, y2):max(y1, y2), min(x1, x2):max(x1, x2)]
     # 裁剪出学号区域
-    rotated = rotated[int(0.46*min(y1, y2)): int(0.94*min(y1, y2)),int(0.76*max(x1, x2)):int(0.98*max(x1, x2))]
+    rotated = rotated[int(0.47*min(y1, y2)): int(0.93*min(y1, y2)),int(0.76*max(x1, x2)):int(0.98*max(x1, x2))]
     return rotated
 
 # 旋转图像
@@ -77,20 +77,25 @@ def deskew(image):
 
     return rotated
 
-def split_image(image_path, output_dir):
+def split_image_with_spacing(image_path, output_dir):
     # Read the image
     image = cv2.imread(image_path)
     # Get the image's height and width
     height, width = image.shape[:2]
+    # Calculate the total spacing width (8 gaps * 3 pixels)
+    total_spacing_width = 8 * 3
+    # Adjust the total width available for the parts
+    available_width = width - total_spacing_width
     # Calculate the width of each part
-    part_width = width // 10
+    part_width = available_width // 9
     # Ensure output directory exists
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     # Split and save each part of the image
-    for i in range(10):
-        # Calculate the start and end x coordinates for each part
-        start_x = i * part_width
+    for i in range(9):
+        # Calculate the start x coordinate for each part
+        # Each part's start point is offset by the (i * part_width) plus (i * 3) for the gaps
+        start_x = i * (part_width + 4)
         end_x = start_x + part_width
         # Crop the image
         cropped_image = image[:, start_x:end_x]
@@ -103,7 +108,8 @@ def split_image(image_path, output_dir):
     
 if __name__ == '__main__':
     # Read the image
-    image = cv2.imread('Batman.png')    # 缩小图像大小
+    image = cv2.imread('id_train0.png')    # 缩小图像大小
+    # image = cv2.imread('Batman.png') 
     scale_percent = 50 # percent of original size
     width = int(image.shape[1] * scale_percent / 100)
     height = int(image.shape[0] * scale_percent / 100)
@@ -120,10 +126,10 @@ if __name__ == '__main__':
     cv2.waitKey(0)
 
     # Save the image
-    cv2.imwrite('test.jpg', deskewed)
+    cv2.imwrite('test01.png', deskewed)
 
     # Directory to save the split images
     output_dir = 'ID_test'
 
     # Split the image and save the parts
-    split_image('test.jpg', output_dir)
+    split_image_with_spacing('test01.png', output_dir)
