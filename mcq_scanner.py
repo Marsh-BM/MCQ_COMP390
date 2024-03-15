@@ -6,7 +6,7 @@ from torchvision import transforms
 import csv
 
 class MCQScanner:
-    def __init__(self, image, model, device, save_dir='results_txt'):
+    def __init__(self, image, model, device, save_dir):
         self.image = image
         self.model = model
         self.device = device
@@ -19,8 +19,9 @@ class MCQScanner:
         transform = transforms.Compose([
             transforms.ToPILImage(),
             transforms.Resize((30, 150)),
+            transforms.Grayscale(num_output_channels=1),
             transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+            transforms.Normalize(mean=[0.485], std=[0.229]),
         ])
         return transform(image).unsqueeze(0).to(self.device)  # 增加批次维度，并移动到设备上
         
@@ -75,11 +76,6 @@ class MCQScanner:
                     prediction = self.predict_question(question_img)
                     question_number = col * rows + row + 1
                     results.append({'page_num': page_num, 'question_number': question_number, 'prediction': prediction})
-
-                    # # 保存结果到文本文件
-                    # result_text = f"Page {page_num}, Question {question_number}, Row: {row + 1}, Column: {col + 1}, Prediction: {prediction}\n"
-                    # with open(os.path.join(self.save_dir, f"results_page_{page_num}.txt"), 'a') as file:
-                    #     file.write(result_text)
 
                     # 写入CSV
                     writer.writerow([page_num, question_number, row + 1, col + 1, prediction])

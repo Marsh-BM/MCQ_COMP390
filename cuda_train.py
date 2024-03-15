@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader, random_split
 import torch.nn.functional as F
 import time
 import matplotlib.pyplot as plt
-from matplotlib.ticker import FormatStrFormatter
+
 import numpy as np
 
 # 这里得bug有可能导致环境崩溃！！！！并不是一个好的解决方法
@@ -21,41 +21,36 @@ torch.manual_seed(0)  # 确保可复现性
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  # 检查并设置设备
 print(f"Using {device} device")
 
-
 # 数据预处理
 def get_transforms():
     return transforms.Compose([
         transforms.Resize((30, 150)), # 将图像大小统一调整为150x150
+        transforms.Grayscale(num_output_channels=1),
         # transforms.RandomRotation(20), # 随机旋转图像，角度在-20到20度之间    数据增强1
-        # transforms.RandomHorizontalFlip(),  # 随机进行水平翻转，以增加数据多样性    
+        # transforms.RandomHorizontalFlip(),  # 随机进行水平翻转，以增加数据多样性
         # transforms.RandomAffine(degrees=0, scale=(0.8, 1.2)), # 数据增强2
         transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        transforms.Normalize(mean=[0.485], std=[0.229]),
     ])
 
-
 # 加载数据集
-def load_datasets(dataset_path, transform, split_ratio=0.8):
+def load_datasets(dataset_path, transform):
     CUSTOM_CLASS_TO_IDX = {'A': 0, 'B': 1, 'C': 2, 'D':3, 'E':4, 'None':5}
     full_dataset = datasets.ImageFolder(root=dataset_path, transform=transform)
     full_dataset.class_to_idx = CUSTOM_CLASS_TO_IDX
-    train_size = int(split_ratio * len(full_dataset))
-    val_size = len(full_dataset) - train_size
-    train_dataset, val_dataset = random_split(full_dataset, [train_size, val_size], generator=torch.Generator().manual_seed(0))
-    return train_dataset, val_dataset
+    return full_dataset
 
 # 数据加载器
-def get_dataloaders(train_dataset, val_dataset, batch_size=32):
+def get_dataloaders(train_dataset,batch_size=32):
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
-    return train_loader, val_loader
+    return train_loader
 
 # 定义神经网络模型
 class Net(nn.Module):
     def __init__(self):
         super(Net, self).__init__()
         # 定义卷积层和全连接层
-        self.conv1 = nn.Conv2d(3, 32, kernel_size=3, padding=1)  # 第一个卷积层
+        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, padding=1)  # 第一个卷积层
         self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)  # 第二个卷积层
         self.conv3 = nn.Conv2d(64, 128, kernel_size=3, padding=1)  # 第三个卷积层
         self.pool = nn.MaxPool2d(kernel_size=2, stride=2)  # 最大池化层，用于降维
@@ -76,66 +71,52 @@ class Net(nn.Module):
 
 
 # 训练和验证函数
-def train_and_validate(model, num_epochs, train_loader, val_loader, criterion, optimizer, device, model_path='Blank_epoch=10_lr=0.01_de2_accuracy'):# 对模型进行命名！！！！！
+def train_model(model, num_epochs, train_loader, criterion, optimizer, device, model_path):# 对模型进行命名！！！！！
+    # 初始化存储每个epoch的训练损失和准确率的列表
     train_losses = []
-    val_losses = []
     train_accuracies = []
-    val_accuracies = []
 
+    # 开始训练循环
     for epoch in range(num_epochs):
-        model.train()
-        running_loss = 0.0
-        correct = 0
-        total = 0
+        model.train()  # 将模型设置为训练模式
+        running_loss = 0.0  # 累积当前epoch的总损失
+        correct = 0  # 累积当前epoch中正确预测的样本数
+        total = 0  # 累积当前epoch处理的总样本数
 
+        # 迭代当前epoch的训练数据
         for images, labels in train_loader:
             images, labels = images.to(device), labels.to(device)
 
-            optimizer.zero_grad()
-            outputs = model(images)
-            loss = criterion(outputs, labels)
-            loss.backward()
-            optimizer.step()
+            optimizer.zero_grad()  # 清零梯度
+            outputs = model(images)  # 前向传播：计算模型输出
+            loss = criterion(outputs, labels)  # 计算损失
+            loss.backward()  # 反向传播：计算梯度
+            optimizer.step()  # 优化步骤：更新权重
 
-            running_loss += loss.item() * images.size(0)
-            _, predicted = torch.max(outputs.data, 1)
-            total += labels.size(0)
-            correct += (predicted == labels).sum().item()
+            running_loss += loss.item() * images.size(0)  # 更新总损失
+            _, predicted = torch.max(outputs.data, 1)  # 获取预测结果
+            total += labels.size(0)  # 更新总样本数
+            correct += (predicted == labels).sum().item()  # 更新正确预测的样本数
 
+        # 计算当前epoch的平均损失和准确率
         epoch_loss = running_loss / total
         epoch_acc = correct / total
 
+        # 记录当前epoch的损失和准确率
         train_losses.append(epoch_loss)
         train_accuracies.append(epoch_acc)
 
-        model.eval()
-        val_running_loss = 0.0
-        val_correct = 0
-        val_total = 0
+        print(f'Epoch {epoch + 1}/{num_epochs}, Train Loss: {epoch_loss:.4f}, Train Accuracy: {epoch_acc:.4f}')
 
-        with torch.no_grad():
-            for images, labels in val_loader:
-                images, labels = images.to(device), labels.to(device)
-                outputs = model(images)
-                loss = criterion(outputs, labels)
-
-                val_running_loss += loss.item() * images.size(0)
-                _, predicted = torch.max(outputs.data, 1)
-                val_total += labels.size(0)
-                val_correct += (predicted == labels).sum().item()
-
-        val_epoch_loss = val_running_loss / val_total
-        val_epoch_acc = val_correct / val_total
-
-        val_losses.append(val_epoch_loss)
-        val_accuracies.append(val_epoch_acc)
-
-        print(f'Epoch {epoch + 1}/{num_epochs}, Train Loss: {epoch_loss:.4f}, Train Accuracy: {epoch_acc:.4f}, Validation Loss: {val_epoch_loss:.4f}, Validation Accuracy: {val_epoch_acc:.4f}')
-   
     # 保存模型参数到指定的文件
     torch.save(model.state_dict(), model_path)
     print(f'Model saved to {model_path}')
-    plot_metrics(train_losses, val_losses, train_accuracies, val_accuracies, 'training_metrics.png')
+    # plot_metrics(train_losses, train_accuracies, 'training_metrics.png')
+
+def load_test_data(test_data_path, transform):
+    test_dataset = datasets.ImageFolder(root=test_data_path, transform=transform)
+    test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
+    return test_loader
 
 def test_model(test_loader, model, device):
     model.eval()  # 设置模型为评估模式
@@ -174,50 +155,46 @@ def test_model(test_loader, model, device):
 
 
 # 绘制训练和验证的损失和准确率
-def plot_metrics(train_loss, val_loss, train_acc, val_acc, save_path):
+def plot_metrics(train_loss, train_acc, save_path):
     epochs = range(1, len(train_loss) + 1)
     plt.figure(figsize=(12, 4))
     plt.subplot(1, 2, 1)
     plt.plot(epochs, train_loss, 'r-', label='Training Loss')
-    plt.plot(epochs, val_loss, 'b--', label='Validation Loss')
-    plt.title('Training and Validation Loss')
+    plt.title('Training Loss')
     plt.xlabel('Epochs')
     plt.ylabel('Loss')
     plt.legend()
     plt.subplot(1, 2, 2)
     plt.plot(epochs, train_acc, 'r-', label='Training Accuracy')
-    plt.plot(epochs, val_acc, 'b--', label='Validation Accuracy')
-    plt.title('Training and Validation Accuracy')
+    plt.title('Training Accuracy')
     plt.xlabel('Epochs')
     plt.ylabel('Accuracy')
     plt.legend()
     plt.savefig(save_path)
     plt.show()
 
+
 # 主执行逻辑
-def main_train():
+def main_train(model_filename):
     transforms = get_transforms()
-    train_dataset, val_dataset = load_datasets(dataset_path, transforms)
-    train_loader, val_loader = get_dataloaders(train_dataset, val_dataset)
+    train_dataset= load_datasets(dataset_path, transforms)
+    train_loader= get_dataloaders(train_dataset)
     model = Net().to(device)
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.00001)
+    optimizer = optim.Adam(model.parameters(), lr=0.0005)
     num_epochs = 10
 
     # 训练数据
-    model_filename = 'Blank_epoch=10_lr=0.01_de2_accuracy'  # 模型文件名
-    train_and_validate(model, num_epochs, train_loader, val_loader, criterion, optimizer, device, model_path=model_filename)
-
+    train_model(model, num_epochs, train_loader, criterion, optimizer, device, model_path=model_filename)
 
     # 测试模型
-    test_dataset = datasets.ImageFolder(root=test_data_path, transform=transforms)
-    test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
-    model.load_state_dict(torch.load('Blank_epoch=10_lr=0.01_de2_accuracy'))  # 确保已加载模型参数
+    test_loader = load_test_data(test_data_path, transforms)
+    model.load_state_dict(torch.load(model_filename))  # 确保已加载模型参数
     model.to(device)
     test_model(test_loader, model, device)
 
 
-def main_notrain():
+def main_notrain(model_filename):
     # 设置变换、加载测试集等
     transforms = get_transforms()
     test_dataset = datasets.ImageFolder(root=test_data_path, transform=transforms)
@@ -225,7 +202,7 @@ def main_notrain():
 
     # 初始化模型并加载预训练的权重
     model = Net().to(device)
-    model.load_state_dict(torch.load('Blank_epoch=10_lr=0.01_de2_accuracy'))  # 确保替换为你的模型文件路径
+    model.load_state_dict(torch.load(model_filename))  # 确保替换为你的模型文件路径
     model.to(device)
 
     # 测试模型
@@ -233,8 +210,9 @@ def main_notrain():
 
 
 if __name__ == "__main__":
-    main_train()
-    # main_notrain()
+    model_filename = 'lr0.0005_ep10'  # 模型文件名
+    main_train(model_filename)
+    # main_notrain(model_filename)
 
 
 # # 测试模型
