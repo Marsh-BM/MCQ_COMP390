@@ -37,18 +37,18 @@ def compare_answers(standard_csv_path, prediction_csv_path):
             print(f"Question Number: {error[0]}, Prediction: {error[1]}, Correct Answer: {error[2]}")
 
 
-def main(model_path,pdf_path,save_answer,save_questions,save_csv):
+def main(model_path,pdf_path,out_path,save_answer,save_questions,save_csv):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = Net().to(device)
     
     model.load_state_dict(torch.load(model_path, map_location=device))
     model.eval()
 
-    pdf_path = os.path.join("PDF_Document", "Batman.pdf")
-    output_folder = os.path.join("JPG_Document","TruthData") #!!!!!!!!!!!!!!!!!修改
+    # pdf_path = os.path.join("PDF_Document", "Batman.pdf")
+    # output_folder = os.path.join("JPG_Document","TruthData") #!!!!!!!!!!!!!!!!!修改
 
-    if not os.path.exists(output_folder):
-        os.makedirs(output_folder)
+    if not os.path.exists(out_path):
+        os.makedirs(out_path)
 
     # 将PDF转换为图像列表
     images = pdf_to_png(pdf_path)
@@ -57,9 +57,10 @@ def main(model_path,pdf_path,save_answer,save_questions,save_csv):
 
 if __name__ == "__main__":
     model_path = 'lr0.0005_ep10'  # 模型文件路径
-    pdf_path = "PDF_Document/Batman.pdf"
-    save_answer = 'Answer_area\Batman'
-    save_questions = 'Validation'
+    pdf_path = "PDF_Document/Spiderman.pdf"
+    out_path = "JPG_Document/TruthData"
+    save_answer = 'Answer_area/Spiderman'
+    save_questions = 'Validation/Spiderman'
     save_csv = 'results_txt'
-    main(model_path, pdf_path,save_answer,save_questions,save_csv)
-    compare_answers('results_txt/Correct_Answer.csv','results_txt/results_page_0.csv')
+    main(model_path, pdf_path, out_path, save_answer,save_questions,save_csv)
+    # compare_answers('results_txt/Correct_Answer.csv','results_txt/results_page_0.csv')

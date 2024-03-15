@@ -55,7 +55,7 @@ class MCQScanner:
         csv_file_path = os.path.join('results_txt', f"results_page_{page_num}.csv")
         with open(csv_file_path, 'w', newline='') as file:
             writer = csv.writer(file)
-            writer.writerow(['Page', 'Question Number', 'Row', 'Column', 'Prediction'])  # 写入表头
+            writer.writerow(['Page', 'Question Number', 'Row', 'Column', 'Prediction','Feedback'])  # 写入表头
 
             for col in range(columns):
                 i = 0
@@ -78,7 +78,7 @@ class MCQScanner:
                     results.append({'page_num': page_num, 'question_number': question_number, 'prediction': prediction})
 
                     # 写入CSV
-                    writer.writerow([page_num, question_number, row + 1, col + 1, prediction])
+                    writer.writerow([page_num, question_number, row + 1, col + 1, prediction,'True'])
 
                     file_name = f"Page_{page_num}_question_{row + 1}_{col + 1}.png"
                     file_path = os.path.join(save_dir, file_name)
@@ -87,45 +87,3 @@ class MCQScanner:
                     print(f"Saved {file_path}")
                 
             # return results
-
-
-
-
-# class MCQScanner:
-#     def __init__(self, image):
-#         self.image = image
-
-#     def crop_and_save_questions(self, start_x, start_y, question_width, question_height, h_space, v_space, rows,
-#                                 columns, save_dir,page_num):
-#         """
-#         遍历答题卡，截取并保存每个题目。
-#         参数:
-#         - start_x, start_y: 第一个题目的起始坐标（左上角）56,48。
-#         - question_width, question_height: 每个题目的宽度 146和高度 30。
-#         - h_space, v_space: 题目之间的水平 298和垂直间距 45。
-#         - rows, columns: 答题卡上题目的行数 30和列数 4。
-#         - save_dir: 保存截取的题目的目录。
-#         """
-#         if not os.path.exists(save_dir):
-#             os.makedirs(save_dir)
-
-#         for col in range(columns):
-#             i = 0
-#             for row in range(rows):
-#                 if row == 0:
-#                     y = start_y
-#                 x = start_x + col * (h_space)
-
-#                 if row % 5 == 0 and row != 0:
-#                     i = i + 1
-#                 y = start_y + row * (question_height) + i * (v_space)
-#                 print(f"X:{x}")
-#                 print(f"Y:{y}")
-
-#                 question_img = self.image[y:y + question_height, x:x + question_width]
-
-#                 file_name = f"Page_{page_num}_question_{row + 1}_{col + 1}.png"
-#                 file_path = os.path.join(save_dir, file_name)
-#                 cv2.imwrite(file_path, question_img)
-
-#                 print(f"Saved {file_path}")

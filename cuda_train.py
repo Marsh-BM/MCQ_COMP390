@@ -193,7 +193,6 @@ def main_train(model_filename):
     model.to(device)
     test_model(test_loader, model, device)
 
-
 def main_notrain(model_filename):
     # 设置变换、加载测试集等
     transforms = get_transforms()
@@ -208,25 +207,9 @@ def main_notrain(model_filename):
     # 测试模型
     test_model(test_loader, model, device)
 
-
 if __name__ == "__main__":
     model_filename = 'lr0.0005_ep10'  # 模型文件名
     main_train(model_filename)
     # main_notrain(model_filename)
 
-
-# # 测试模型
-# def test_model(model, test_loader, device):
-#     model.eval()
-#     correct = 0
-#     total = 0
-#     with torch.no_grad():
-#         for images, labels in test_loader:
-#             images, labels = images.to(device), labels.to(device)
-#             outputs = model(images)
-#             _, predicted = torch.max(outputs.data, 1)
-#             total += labels.size(0)
-#             correct += (predicted == labels).sum().item()
-#     test_accuracy = correct / total
-#     print(f'Test Accuracy: {test_accuracy:.4f}')
     

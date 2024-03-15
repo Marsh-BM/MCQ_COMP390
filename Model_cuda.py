@@ -268,9 +268,6 @@ num_epochs = 20  # 定义训练轮数
 train_model(num_epochs, train_loader, val_loader, model, criterion, optimizer,model_path='no data enhancement )')  # 调用训练函数】
 
 
-
-
-
 # 加载测试集
 test_data_path = 'test_data'
 test_dataset = datasets.ImageFolder(root='test_data', transform=data_transforms)
