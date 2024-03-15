@@ -39,15 +39,6 @@ class MCQScanner:
         
     def crop_and_save_questions(self, start_x, start_y, question_width, question_height, h_space, v_space, rows,
                             columns, save_dir,page_num):
-        """
-        遍历答题卡，截取并保存每个题目。
-        参数:
-        - start_x, start_y: 第一个题目的起始坐标(左上角)56,48。
-        - question_width, question_height: 每个题目的宽度 146和高度 30。
-        - h_space, v_space: 题目之间的水平 298和垂直间距 45。
-        - rows, columns: 答题卡上题目的行数 30和列数 4。
-        - save_dir: 保存截取的题目的目录。
-        """
         results = []
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)

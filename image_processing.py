@@ -34,9 +34,10 @@ def crop(rotated, contours, h, w):
         x2, y2 = w - x2, h - y2
 
     # 裁剪出矩形答题区域
-    rotated = rotated[min(y1, y2):max(y1, y2), min(x1, x2):max(x1, x2)]
-
-    return rotated
+    answer_id = rotated[min(y1, y2):max(y1, y2), min(x1, x2):max(x1, x2)]
+    # 裁剪出学号区域
+    id_area = rotated[int(0.47*min(y1, y2)): int(0.93*min(y1, y2)),int(0.76*max(x1, x2)):int(0.98*max(x1, x2))]
+    return answer_id, id_area
 
 # 旋转图像
 def deskew(image):
@@ -68,20 +69,6 @@ def deskew(image):
     rotated = cv2.warpAffine(image, M, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)  # 旋转图像
 
     # 裁剪图像
-    rotated = crop(rotated, contours, h, w)
+    answer_area, id_area = crop(rotated, contours, h, w)
 
-    # 将学号区域转换为灰度图像，并应用二值化
-    gray = cv2.cvtColor(rotated, cv2.COLOR_BGR2GRAY)
-    _, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
-
-    # 轮廓检测
-    contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-    # 最小轮廓面积
-    min_area = 20
-    contours = [c for c in contours if cv2.contourArea(c) > min_area]
-
-    # 画出轮廓
-    # cv2.drawContours(rotated, contours, -1, (0, 255, 0), 3)
-
-    return rotated
+    return answer_area,id_area

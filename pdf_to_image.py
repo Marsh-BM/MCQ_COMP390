@@ -5,6 +5,7 @@ import cv2
 from image_processing import deskew
 from mcq_scanner import MCQScanner
 from PIL import Image
+from ID_scanner import split_id
 
 def pdf_to_png(pdf_path):
     doc = fitz.open(pdf_path)
@@ -36,31 +37,36 @@ def convert_and_resize_image(image):
     # 调整图像大小
     return cv2.resize(open_cv_image, dim, interpolation=cv2.INTER_AREA)
 
-def process_images(images,save_answer,save_questions,model,device,save_csv):
+# def process_images(images,save_answer,save_questions,model,device,save_csv):
+def process_images(images):
     # processed_images = []
     for page_num, img in images:
         resized_image = convert_and_resize_image(img)
-        # 进行纠偏处理
-        deskewed_image = deskew(resized_image)
-        deskewed_image = cv2.resize(deskewed_image, (1119, 1193))
+        # deskewed_image = deskew(resized_image)
+        answer_area, id_area = deskew(resized_image)
+        answer_area = cv2.resize(answer_area, (1119, 1193))
+        # 给ID来进行修正
 
-        # 保存处理后的图像
-        save_path_Answer = save_answer
-        file_name_Answer = f"Answer_Page_{page_num + 1}.png"
-        save_image(deskewed_image, save_path_Answer, file_name_Answer)
+        # 将ID裁剪输入进去
+        split_id(id_area, page_num)
+    
+        # # 保存处理后的图像
+        # save_path_Answer = save_answer
+        # file_name_Answer = f"Answer_Page_{page_num + 1}.png"
+        # save_image(answer_area, save_path_Answer, file_name_Answer)
 
-        save_path_Questions = save_questions
-        start_x, start_y = 60, 48  # 第一个题目的起始坐标
-        question_width, question_height = 150, 30 # 每个题目的宽度和高度
-        h_space, v_space = 297, 44  # 题目之间的水平和垂直间距
-        rows, columns = 30, 4  # 答题卡上题目的行数和列数
+        # save_path_Questions = save_questions
+        # start_x, start_y = 60, 48  # 第一个题目的起始坐标
+        # question_width, question_height = 150, 30 # 每个题目的宽度和高度
+        # h_space, v_space = 297, 44  # 题目之间的水平和垂直间距
+        # rows, columns = 30, 4  # 答题卡上题目的行数和列数
 
-        scanner = MCQScanner(deskewed_image,model,device,save_csv)
-        scanner.crop_and_save_questions(start_x, start_y, question_width, question_height, h_space, v_space, rows,
-                                        columns, save_path_Questions,page_num)
-
-
+        # scanner = MCQScanner(answer_area,model,device,save_csv)
+        # scanner.crop_and_save_questions(start_x, start_y, question_width, question_height, h_space, v_space, rows,
+        #                                 columns, save_path_Questions,page_num)
 
 
-
+if __name__ == "__main__":
+    images = pdf_to_png('ID_pdf/id_test.pdf')
+    process_images(enumerate(images))
 
