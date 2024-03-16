@@ -126,7 +126,7 @@ class IDScanner:
         # Calculate the width of each part
         part_width = available_width // 9
         # 
-        output_dir = 'ID_test'
+        output_dir = 'ID_middle'
         # Ensure output directory exists
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)

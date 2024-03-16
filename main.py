@@ -61,12 +61,12 @@ def main(Qu_model_path,ID_model_path,pdf_path,out_path,save_answer,save_question
 
 if __name__ == "__main__":
     Qu_model_path = 'lr0.0005_ep10'  # 模型文件路径
-    ID_model_path = 'ID_lr0.0005_ep10'
-    pdf_path = "PDF_Document/Batman.pdf"
+    ID_model_path = 'ID_lr0.00005_ep30'
+    pdf_path = "PDF_Document/Spiderman.pdf"
     out_path = "JPG_Document/TruthData"
-    save_answer = 'Answer_area/Batman'
-    save_questions = 'Validation/Batman'
+    save_answer = 'Answer_area/Spiderman'
+    save_questions = 'Validation/Spiderman'
     save_ID = 'ID_middle'
     save_csv = 'results_txt/ID_Question.csv'
     main(Qu_model_path,ID_model_path, pdf_path, out_path, save_answer,save_questions,save_ID,save_csv)
-    compare_answers('results_txt/Correct_Answer.csv','results_txt/ID_Question.csv')
+    # compare_answers('results_txt/Correct_Answer.csv','results_txt/ID_Question.csv')

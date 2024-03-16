@@ -181,8 +181,8 @@ def main_train(model_filename):
     train_loader= get_dataloaders(train_dataset)
     model = ID_model().to(device)
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.0005)
-    num_epochs = 10
+    optimizer = optim.Adam(model.parameters(), lr=0.00005)
+    num_epochs = 30
 
     # 训练数据
     train_model(model, num_epochs, train_loader, criterion, optimizer, device, model_path=model_filename)
@@ -209,7 +209,7 @@ def main_notrain(model_filename):
 
 if __name__ == "__main__":
     # model_filename = 'lr0.0005_ep10'  # 模型文件名
-    model_filename = 'ID_lr0.0005_ep10'
+    model_filename = 'ID_lr0.00005_ep30'
     main_train(model_filename)
     # main_notrain(model_filename)
 
