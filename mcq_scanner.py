@@ -5,6 +5,7 @@ import torch
 from torchvision import transforms
 import csv
 
+
 class MCQScanner:
     def __init__(self, image, model, device, save_dir):
         self.image = image
@@ -46,7 +47,7 @@ class MCQScanner:
         csv_file_path = os.path.join('results_txt', f"results_page_{page_num}.csv")
         with open(csv_file_path, 'w', newline='') as file:
             writer = csv.writer(file)
-            writer.writerow(['Page', 'Question Number', 'Row', 'Column', 'Prediction','Feedback'])  # 写入表头
+            writer.writerow(['Page', 'Question Number', 'Prediction'])  # 写入表头
 
             for col in range(columns):
                 i = 0
@@ -68,13 +69,27 @@ class MCQScanner:
                     question_number = col * rows + row + 1
                     results.append({'page_num': page_num, 'question_number': question_number, 'prediction': prediction})
 
-                    # 写入CSV
-                    writer.writerow([page_num, question_number, row + 1, col + 1, prediction,'True'])
+                    # # 写入CSV
+                    # writer.writerow([page_num, question_number, row + 1, col + 1, prediction,'True'])
 
                     file_name = f"Page_{page_num}_question_{row + 1}_{col + 1}.png"
                     file_path = os.path.join(save_dir, file_name)
                     cv2.imwrite(file_path, question_img)
 
-                    print(f"Saved {file_path}")
+                    # print(f"Saved {file_path}")
                 
-            # return results
+            return results
+    
+    # def generate_csv_with_id_and_answes(self, id_scanner, page_num):
+    #     # 首先，使用IDScanner获取学生ID
+    #     student_id = id_scanner.split_id(self.image)
+
+    #     csv_file_path = os.path.join(self.save_dir, f"results_with_id_page_{page_num}.csv")
+    #     with open(csv_file_path, 'w', newline='') as file:
+    #         writer = csv.writer(file)
+    #         writer.writerow(['Student ID', student_id])
+    #         writer.writerow(['Page', 'Question Number', 'Row', 'Column', 'Prediction', 'Feedback'])
+
+    #         results = self.crop_and_save_questions(...)  # 根据需要填写参数
+    #         for result in results:
+    #             writer.writerow([result['page_num'], result['question_number'], 'N/A', 'N/A', result['prediction'], 'True'])
