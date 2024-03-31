@@ -78,6 +78,9 @@ def process_images(images,save_answer,save_questions,save_ID,Qu_model,ID_model,d
         for question in predicted_questions:
             row = ([predicted_id, question['page_num'], question['question_number'], question['prediction']])
             rows_to_write.append(row)
+
+
+            
     # 一次性写入所有行到CSV文件
     with open(save_csv, 'w', newline='') as file:
         writer = csv.writer(file)

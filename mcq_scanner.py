@@ -44,41 +44,41 @@ class MCQScanner:
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
 
-        csv_file_path = os.path.join('results_txt', f"results_page_{page_num}.csv")
-        with open(csv_file_path, 'w', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow(['Page', 'Question Number', 'Prediction'])  # 写入表头
+        # csv_file_path = os.path.join('results_txt', f"results_page_{page_num}.csv")
+        # with open(csv_file_path, 'w', newline='') as file:
+        #     writer = csv.writer(file)
+        #     writer.writerow(['Page', 'Question Number', 'Prediction'])  # 写入表头
 
-            for col in range(columns):
-                i = 0
-                for row in range(rows):
-                    if row == 0:
-                        y = start_y
-                    x = start_x + col * (h_space)
+        for col in range(columns):
+            i = 0
+            for row in range(rows):
+                if row == 0:
+                    y = start_y
+                x = start_x + col * (h_space)
 
-                    if row % 5 == 0 and row != 0:
-                        i = i + 1
-                    y = start_y + row * (question_height) + i * (v_space)
-                    print(f"X:{x}")
-                    print(f"Y:{y}")
+                if row % 5 == 0 and row != 0:
+                    i = i + 1
+                y = start_y + row * (question_height) + i * (v_space)
+                # print(f"X:{x}")
+                # print(f"Y:{y}")
 
-                    question_img = self.image[y:y + question_height, x:x + question_width]
+                question_img = self.image[y:y + question_height, x:x + question_width]
 
-                    # 引入模型开始计算
-                    prediction = self.predict_question(question_img)
-                    question_number = col * rows + row + 1
-                    results.append({'page_num': page_num, 'question_number': question_number, 'prediction': prediction})
+                # 引入模型开始计算
+                prediction = self.predict_question(question_img)
+                question_number = col * rows + row + 1
+                results.append({'page_num': page_num, 'question_number': question_number, 'prediction': prediction})
 
-                    # # 写入CSV
-                    # writer.writerow([page_num, question_number, row + 1, col + 1, prediction,'True'])
+                # # 写入CSV
+                # writer.writerow([page_num, question_number, row + 1, col + 1, prediction,'True'])
 
-                    file_name = f"Page_{page_num}_question_{row + 1}_{col + 1}.png"
-                    file_path = os.path.join(save_dir, file_name)
-                    cv2.imwrite(file_path, question_img)
+                file_name = f"Page_{page_num}_question_{row + 1}_{col + 1}.png"
+                file_path = os.path.join(save_dir, file_name)
+                cv2.imwrite(file_path, question_img)
 
-                    # print(f"Saved {file_path}")
-                
-            return results
+                # print(f"Saved {file_path}")
+            
+        return results
     
     # def generate_csv_with_id_and_answes(self, id_scanner, page_num):
     #     # 首先，使用IDScanner获取学生ID

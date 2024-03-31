@@ -9,6 +9,7 @@ import time
 import matplotlib.pyplot as plt
 import numpy as np
 
+# 梯度下降！！！！！！！！！！！！！！！！！！！！！！！！！
 # 这里得bug有可能导致环境崩溃！！！！并不是一个好的解决方法
 import os
 os.environ['KMP_DUPLICATE_LIB_OK']='TRUE'
