@@ -54,20 +54,20 @@ def compare_answers(standard_csv_path, prediction_csv_path, output_csv_path):
     parts_set = set()  # 用于保存所有独特的部分名称
     with open(standard_csv_path, 'r') as file:
         reader = csv.reader(file)
-        next(reader)
+        next(reader)  # 跳过标题行
         for row in reader:
             question_number, answer, part, weight = int(row[1]), row[4], row[5], int(row[6])
             standard_answers[question_number] = {'answer': answer, 'part': part, 'weight': weight}
             parts_set.add(part)  # 添加部分到集合中
 
-    # 初始化学生得分字典
+    # 初始化学生得分字典和答案字典
     student_scores = {}
-    student_answers = {}  # 用于保存学生答案和页面信息
+    student_answers = {}
 
     # 读取预测文件并比较答案
     with open(prediction_csv_path, 'r') as file:
         reader = csv.reader(file)
-        next(reader)
+        next(reader)  # 跳过标题行
         for row in reader:
             student_id, question_number, prediction, page = row[0], int(row[2]), row[3], row[1]
             correct = standard_answers[question_number]['answer']
@@ -76,10 +76,10 @@ def compare_answers(standard_csv_path, prediction_csv_path, output_csv_path):
 
             # 初始化学生答案记录
             if student_id not in student_answers:
-                student_answers[student_id] = {'Page': page, 'Answers': []}
+                student_answers[student_id] = {'Page': page, 'Answers': {}}
 
-            # 记录答案，正确答案大写，错误答案小写
-            student_answers[student_id]['Answers'].append(prediction.upper() if prediction == correct else prediction.lower())
+            # 记录答案，正确答案大写，错误答案小写，并保留题号
+            student_answers[student_id]['Answers'][question_number] = prediction.upper() if prediction == correct else prediction.lower()
 
             # 初始化学生分数记录
             if student_id not in student_scores:
@@ -96,13 +96,12 @@ def compare_answers(standard_csv_path, prediction_csv_path, output_csv_path):
         # 写入表头
         headers = ['ID', 'Page', 'Answer'] + sorted(parts_set) + ['Total_Marks']
         writer.writerow(headers)
-        # 写入每个学生的得分
+        
+        # 写入每个学生的得分和带序号的答案
         for student_id, data in student_answers.items():
-            row = [
-                student_id,
-                data['Page'],
-                ''.join(data['Answers'])  # 将答案合并为一个字符串
-            ]
+            sorted_answers = sorted(data['Answers'].items())
+            answer_str = ' '.join([f"{i}-{a}" for i, a in sorted_answers])  # 生成带序号的答案字符串
+            row = [student_id, data['Page'], answer_str]
             row += [student_scores[student_id]['Parts'][p] for p in sorted(parts_set)]  # 按顺序添加每个部分的得分
             row.append(student_scores[student_id]['Total Score'])
             writer.writerow(row)
@@ -133,10 +132,10 @@ def main(Qu_model_path,ID_model_path,pdf_path,out_path,save_answer,save_question
 if __name__ == "__main__":
     Qu_model_path = 'lr0.0005_ep10'  # 模型文件路径
     ID_model_path = 'ID_lr0.00005_ep30'
-    pdf_path = "PDF_Document/colour-300dpi.pdf"
+    pdf_path = "PDF_Document/test_2.pdf"
     out_path = "JPG_Document/TruthData"
-    save_answer = 'Answer_area/colour-300dpi'
-    save_questions = 'Validation/colour-300dpi'
+    save_answer = 'Answer_area/test_new'
+    save_questions = 'Validation/test_new'
     save_ID = 'ID_middle'
     save_csv = 'results_txt/ID_Question.csv'
 
