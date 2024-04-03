@@ -130,9 +130,9 @@ def main(Qu_model_path,ID_model_path,pdf_path,out_path,save_answer,save_question
     
 
 if __name__ == "__main__":
-    Qu_model_path = 'lr0.0005_ep10'  # 模型文件路径
-    ID_model_path = 'ID_lr0.00005_ep30'
-    pdf_path = "PDF_Document/test_2.pdf"
+    Qu_model_path = 'Question_Model/lr0.0005_ep10'  # 模型文件路径
+    ID_model_path = 'ID_Model/ID_lr0.00005_ep30'
+    pdf_path = "PDF_Document/test_3.pdf"
     out_path = "JPG_Document/TruthData"
     save_answer = 'Answer_area/test_new'
     save_questions = 'Validation/test_new'

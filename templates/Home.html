@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCQ Scanner</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+<div class="header">
+    <div class="logo"></div> <!-- Logo占位符 -->
+    <a href="#" onclick="event.preventDefault();">Home</a>
+    <a href="blank.html">Online Recognition</a>
+</div>
+<div class="main-content">
+    <div class="mcq-text">
+        <h1>MCQ Scanner</h1>
+        <p>一款方便且直观的公式文档识别软件</p>
+        <p>专为教师设计的答题卡批改助手，实现PDF答题卡的批量化处理与自动批改。</p>
+    </div>
+
+    <form id="file-upload-form" action="/upload" method="post" enctype="multipart/form-data">
+        <div class="file-upload-section">
+            <!-- PDF文件上传区域 -->
+            <div class="pdf-upload">
+                <input type="file" name="pdf-file" id="pdf-file-input" accept=".pdf" style="display:none;" onchange="previewPDF(event)">
+                <label for="pdf-file-input" class="document-button">上传PDF题目文件</label>
+                <button type="button" id="update-pdf" class="update-btn">更新PDF</button>
+                <embed id="pdf-preview" type="application/pdf" style="width:100%;height:200px;display:none;"></embed>
+            </div>
+
+            <!-- CSV文件上传区域 -->
+            <div class="csv-upload">
+                <input type="file" name="csv-file" id="csv-file-input" accept=".csv" style="display:none;" onchange="previewCSV(event)">
+                <label for="csv-file-input" class="document-button">上传CSV答案文件</label>
+                <button type="button" id="update-csv" class="update-btn">更新CSV</button>
+                <div id="csv-preview" class="placeholder-image" style="display:none;"></div>
+            </div>
+        </div>
+
+        <!-- 立即体验按钮 -->
+        <button type="button" class="experience-btn" id="submit-btn">立即体验</button>
+    </form>
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
