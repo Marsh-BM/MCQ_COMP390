@@ -1,9 +1,10 @@
-/* 设置全页面的字体和背景渐变色，1/3为蓝色，其余为白色 */
 body, html {
     height: 100%;
     margin: 0;
     font-family: 'Arial', sans-serif;
-    background: linear-gradient(to bottom, #007bff 10%, #ffffff 67%);
+    background: linear-gradient(to bottom, #007bff 33%, #ffffff 67%);
+    display: flex;
+    flex-direction: column; /* Stack content vertically */
 }
 
 /*!* 页首导航栏样式，固定在顶部 *!*/
@@ -19,15 +20,6 @@ body, html {
     z-index: 1000;
 }
 
-/* 页首导航栏中的logo样式 */
-.logo {
-    width: 40px;
-    height: 40px;
-    background-image: url('img.png'); /* 这里需要替换为实际的logo路径 */
-    background-size: cover;
-    margin-right: 20px;
-    transition: background-color 0.3s; /* 添加颜色变换过渡效果 */
-}
 /* 当链接被激活/点击时的样式 */
 .header a:active {
     background-color:  #b2d1f6; /* 暂时改变背景颜色 */
@@ -44,6 +36,7 @@ body, html {
     padding: 5px 10px; /* Add padding for background color visibility */
     border-radius: 5px; /* Optional: rounds corners for background */
 }
+
 /* Hover effect for links in the header */
 .header a:hover {
     color: #00008B; /* Dark blue text */
@@ -51,212 +44,94 @@ body, html {
 }
 
 
-/* 主内容区域样式，使用flex布局 */
-.main-content {
-    flex: 1;
-    padding-top: 60px; /* 留出header的空间 */
+.content {
     display: flex;
-    flex-direction: column;
-    align-items: center; /* 水平居中 */
-    justify-content: flex-start; /* 内容向上对齐 */
-    width: 100%;
+    padding-top: 60px; /* 根据头部高度调整 */
+    flex-direction: row; /* 确保子元素并排 */
+    justify-content: center; /* 水平居中子元素 */
+    align-items: flex-start; /* 顶部对齐子元素 */
+    flex-wrap: nowrap; /* 如果需要，允许子元素换行 */
 }
 
-/* MCQ Scanner文字区域的样式 */
-.mcq-text {
-    text-align: center; /* 文字居中 */
+.left-part, .right-part {
+    flex-basis: 50%; /* Each takes up half the container */
+    display: flex;
+    flex-direction: column; /* Stack elements vertically inside each part */
+    align-items: center; /* Center items inside each part */
     padding: 20px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); /* 添加文字阴影效果 */
+    min-width: 250px; /* 设置一个最小宽度防止内容过于拥挤 */
+    margin: 10px; /* 提供一些间隔 */
 }
 
-/* "立即体验"按钮的基本样式 */
-.experience-btn {
-    font-family: 'Arial', sans-serif; /* 字体 */
-    font-size: 16px; /* 字体大小 */
+/* 文件上传区域的布局不变 */
+.pdf-upload, .csv-upload {
+    width: 100%; /* 现在使用100%宽度来填充父容器 */
+    margin: 10px 0; /* 调整外边距以适应横向布局 */
+    padding: 20px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ccc;
+    overflow-y: auto;
+    height: 400px;
+}
+
+.document-button, .update-btn,.experience-btn {
     padding: 10px 20px;
-    text-decoration: none;
-    background-color: #007bff;
-    color: #fff;
+    font-size: 16px;
+    color: #007bff; /* Text color */
+    background-color: #ffffff; /* Background color */
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    margin-top: 20px;
-    transition: transform 0.3s ease;
+    transition: background-color 0.3s, transform 0.3s;
+    text-align: center; /* Center the text inside the button */
+    display: inline-block; /* Allow buttons to be styled inline */
+    text-decoration: none; /* Remove underline from text */
+    margin: 0 10px; /* Add some margin around the buttons */
 }
 
-/* 鼠标悬停在按钮上时的样式 */
-.experience-btn:hover {
+/* Hover and active state enhancements for buttons */
+.document-button:hover, .update-btn:hover,.experience-btn:hover {
     background-color: #0056b3;
-    color: #fff;
-    transform: scale(1.05); /* 稍微放大按钮 */
+    transform: scale(1.05);
+}
+
+.document-button:active, .update-btn:active, .experience-btn:active{
+    background-color: #004080;
+    transform: scale(0.95);
 }
 
 
-
-
-/* 文件上传区域的样式 */
-.file-upload-section {
-    display: flex;
-    justify-content: space-around;
-    width: 100%;
-    margin: 0 0 20px; /* 与下方间距 */
-}
-
-/* 单个文件上传块的样式，移除背景 */
-.pdf-upload, .csv-upload {
-    width: 45%; /* 占用45%的宽度 */
-    /* 移除背景设置 */
-    padding: 20px; /* 内边距 */
-    margin: 10px; /* 与其他上传块的间距 */
-    display: flex; /* 开启flex布局 */
-    flex-direction: column; /* 垂直布局 */
-    align-items: center; /* 子元素居中对齐 */
-    justify-content: center; /* 子元素居中对齐 */
-    /*!* 添加边框而非背景 *!*/
-    /*border: 2px solid #ccc;*/
-    /*border-radius: 15px; !* 圆角边框 *!*/
-}
-
-/* 上传区块内的占位图片样式，调整为深色背景并放置文字 */
-.placeholder-image {
-    width: 80%; /* 占用100%的宽度 */
-    height: 200px; /* 高度 */
-    background-color: #ccc; /* 深色背景 */
-    color: #fff; /* 白色文字 */
-    display: flex; /* 启用flex布局 */
-    align-items: flex-end; /* 子元素放置在底部 */
-    justify-content: center; /* 居中对齐 */
-    border-radius: 15px; /* 圆角边框 */
-    position: relative; /* 相对定位，为内部元素定位提供参考 */
-    overflow: hidden; /* 隐藏溢出的内容 */
-}
-/* 按钮基础样式 */
-.document-button{
-    padding: 10px 20px; /* 内边距 */
-    font-family: 'Arial', sans-serif; /* 字体 */
-    font-size: 16px; /* 字体大小 */
-    color: white; /* 字体颜色 */
-    background-color: #007bff; /* 按钮背景颜色 */
-    border: none; /* 无边框 */
-    border-radius: 5px; /* 边角圆滑 */
-    cursor: pointer; /* 鼠标悬停时显示指针 */
-    transition: background-color 0.3s, transform 0.3s; /* 平滑过渡效果 */
-    margin-bottom: 10px; /* 与下方元素的间距 */
-}
-
-/* 鼠标悬停在按钮上时的样式 */
-.document-button:hover {
-    background-color: #0056b3; /* 按钮背景颜色加深 */
-    transform: scale(1.05); /* 按钮轻微放大 */
-}
-
-/* 鼠标按下按钮时的样式 */
-.document-button:active {
-    background-color: #004080; /* 按钮背景颜色更加加深 */
-    transform: scale(0.95); /* 按钮轻微缩小 */
-}
-
-
-/* 响应式设计 */
 @media (max-width: 800px) {
-    .file-upload-section {
-        flex-direction: column; /* 在窄屏幕上改为垂直布局 */
-    }
     .pdf-upload, .csv-upload {
-        width: 80%; /* 宽度调整 */
-        margin: 10px 0; /* 上下间距 */
+        width: 100%; /* Adjust the width for smaller screens */
+    }
+    
+    #pdf-preview, #csv-preview {
+        height: 300px; /* Adjust the height for smaller screens */
     }
 }
 
-/* 在CSS中为PDF预览设置更大的高度 */
-/* 调整PDF预览尺寸的CSS */
+#pdf-preview, #csv-preview {
+    width: 100%;
+    height: 400px; /* Adjust height as needed */
+    margin-top: 20px;
+    border: 1px solid #ccc; /* 可视化边框 */
+}
 #pdf-preview {
-    width: 100%; /* 宽度设置为容器的100% */
-    height: 800px; /* 高度调整为800px，您可以根据实际情况调整这个值 */
-    display: block; /* 确保它是块级元素 */
-    margin-top: 20px; /* 在顶部添加一些空间 */
-    border: none; /* 如果不需要边框，可以设置为none */
+    border: 1px solid #ccc; /* Add a border for the PDF preview frame */
+    /* Existing styles for #pdf-preview remain unchanged */
 }
-
-/* 调整CSV预览尺寸的CSS */
 #csv-preview {
-    width: 100%; /* 设置容器的宽度 */
-    max-height: 800px; /* 设置最大高度，确保纵向滚动条的出现 */
-    overflow-x: auto; /* 横向滚动条自动出现 */
-    overflow-y: auto; /* 纵向滚动条自动出现 */
-    margin-top: 20px; /* 在顶部添加一些空间 */
-    border: 1px solid #000000; /* 如果需要边框，可以调整这个值 */
-    border-radius: 4px; /* 边框圆角 */
-    background: #000000; /* 背景色设置为白色 */
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* 可选：增强视觉效果的阴影 */
+    width: 100%;
+    max-height: 400px; /* Set a maximum height for the preview area */
+    overflow-y: auto; /* Enable vertical scrolling */
+    border: 1px solid #ccc; /* Add a border for better visibility */
+    margin-top: 20px; /* Provide some spacing from the update button */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Optional: Adds some shadow for depth */
 }
-
-
-
-
-
-
-/*!* 右侧内容区域样式，确保没有内边距和外边距 *!*/
-/*.right-content {*/
-/*    flex-basis: 50%;*/
-/*    !*background: linear-gradient(to bottom, #007bff 33%, #ffffff 33%); !* 调整渐变 *!*!*/
-/*    display: flex;*/
-/*    align-items: center;*/
-/*    justify-content: center;*/
-/*    padding: 0; !* 移除内边距 *!*/
-/*    margin: 0; !* 移除外边距 *!*/
-/*}*/
-
-/*!* 右侧占位图片的样式，添加更明显的阴影 *!*/
-/*.placeholder-image {*/
-/*    width: 90%;*/
-/*    height: 350px;*/
-/*    background-color: #ccc;*/
-/*    border-radius: 15px;*/
-/*    box-shadow: 0 8px 16px 0 rgba(0,0,0,.2); !* 增强阴影效果 *!*/
-/*    margin: 0; !* 移除外边距 *!*/
-/*}*/
-
-/*!* "立即体验"按钮的基本样式 *!*/
-/*.experience-btn {*/
-/*    padding: 10px 20px;*/
-/*    text-decoration: none;*/
-/*    background-color: #007bff;*/
-/*    color: #fff;*/
-/*    border: none;*/
-/*    border-radius: 5px;*/
-/*    cursor: pointer;*/
-/*    margin-top: 20px;*/
-/*    transition: transform 0.3s ease; !* 过渡效果使按钮点击时有反馈 *!*/
-/*}*/
-
-/*!* 鼠标悬停在按钮上时的样式 *!*/
-/*.experience-btn:hover {*/
-/*    background-color: #b2d1f6; !* 蓝色背景 *!*/
-/*    color: #fff; !* 白色文字 *!*/
-/*    border-color: #b2d1f6; !* 蓝色边框 *!*/
-/*}*/
-
-/*!* 用户点击按钮时的样式 *!*/
-/*.experience-btn:active {*/
-/*    background-color: #b2d1f6; !* 蓝色背景 *!*/
-/*    color: #fff; !* 白色文字 *!*/
-/*    border-color: #b2d1f6; !* 蓝色边框 *!*/
-/*    !* 您可以添加其他的视觉反馈效果，比如稍微缩小按钮 *!*/
-/*    transform: scale(0.98);*/
-/*}*/
-
-/*!* 适应屏幕尺寸变化时的响应式设计 *!*/
-/*@media (max-width: 800px) {*/
-/*    .main-content {*/
-/*        flex-direction: column;*/
-/*        align-items: center;*/
-/*    }*/
-/*    .left-content, .right-content {*/
-/*        width: 100%;*/
-/*    }*/
-/*    .placeholder-image {*/
-/*        width: 70%;*/
-/*        height: auto; !* 自适应高度 *!*/
-/*    }*/
-/*}*/
+.bottom-part {
+    padding: 20px;
+    display: flex;
+    justify-content: center; /* Center button horizontally */
+}

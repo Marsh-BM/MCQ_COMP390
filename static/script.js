@@ -21,14 +21,11 @@ function csvToTable(csv) {
     var lines = csv.split('\n');
     var result = '<table>';
     
-    // 循环处理每一行
     lines.forEach(function(line) {
         result += '<tr>';
         var entries = line.split(',');
-        
-        // 循环处理每一列
         entries.forEach(function(entry) {
-            result += '<td>' + entry.trim() + '</td>'; // 使用 trim() 去除空白字符
+            result += '<td>' + entry.trim() + '</td>';
         });
         result += '</tr>';
     });
@@ -36,7 +33,6 @@ function csvToTable(csv) {
     return result;
 }
 
-// 确保绑定 input 元素的 change 事件
 document.addEventListener('DOMContentLoaded', function() {
     var pdfFileInput = document.getElementById('pdf-file-input');
     if (pdfFileInput) {
@@ -47,29 +43,92 @@ document.addEventListener('DOMContentLoaded', function() {
     if (csvFileInput) {
         csvFileInput.addEventListener('change', previewCSV);
     }
-});
 
-// 点击“立即体验”按钮上传文件
-document.getElementById('submit-btn').addEventListener('click', function() {
-    console.log("已点击")
-    var formData = new FormData(document.getElementById('file-upload-form'));
-    
-    fetch('/upload', {
+    // 为更新PDF按钮添加上传功能
+    document.getElementById('update-pdf').addEventListener('click', function() {
+        var formData = new FormData(document.getElementById('file-upload-form'));
+        // 仅保留PDF文件
+        formData.delete('csv-file'); // 移除CSV文件
+        fetch('/upload', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            // 上传成功后的操作
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+
+    // 为更新CSV按钮添加上传功能
+    document.getElementById('update-csv').addEventListener('click', function() {
+        var formData = new FormData(document.getElementById('file-upload-form'));
+        // 仅保留CSV文件
+        formData.delete('pdf-file'); // 移除PDF文件
+        fetch('/upload', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            // 上传成功后的操作
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+// document.getElementById('experience-btn').addEventListener('click', function() {
+//     fetch('/grade', { // Assuming '/grade' is the endpoint that triggers the grading process
+//         method: 'POST',
+//     })
+//     .then(response => {
+//         if(response.ok) {
+//             return response.blob(); // Assuming the response is the graded results in a CSV file
+//         }
+//         throw new Error('Network response was not ok.');
+//     })
+//     .then(blob => {
+//         const url = window.URL.createObjectURL(blob);
+//         const link = document.createElement('a');
+//         link.href = url;
+//         link.download = 'graded_results.csv'; // Assuming you want to download the results as a CSV
+//         document.body.appendChild(link);
+//         link.click();
+//         document.body.removeChild(link);
+//     })
+//     .catch(error => {
+//         console.error('Error:', error);
+//     });
+// });
+
+document.getElementById('experience-btn').addEventListener('click', function() {
+    fetch('/grade', { // Assuming '/grade' is the endpoint that triggers the grading process
         method: 'POST',
-        body: formData
     })
     .then(response => {
-        if (response.ok) {
-            return response.json();
-        } else {
-            throw new Error('Server response was not OK');
+        if(response.ok) {
+            return response.blob(); // Assuming the response is the graded results in a CSV file
         }
+        throw new Error('Network response was not ok.');
     })
-    .then(data => {
-        console.log(data);
-        // 处理服务器响应的数据
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'graded_results.csv'; // Assuming you want to download the results as a CSV
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     })
     .catch(error => {
         console.error('Error:', error);
     });
+});
+
+
+
 });

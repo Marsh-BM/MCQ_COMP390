@@ -7,47 +7,6 @@ from ID_model import ID_model
 import csv
 import time
 
-# def compare_answers(standard_csv_path, prediction_csv_path):
-#     # 读取标准答案
-#     standard_answers = {}
-#     with open(standard_csv_path, 'r') as file:
-#         reader = csv.reader(file)
-#         next(reader)
-#         for row in reader:
-#             question_number, answer, part, weight = int(row[1]), row[4], row[5], int(row[6])
-#             standard_answers[question_number] = {'answer': answer, 'part': part, 'weight': weight}
-
-#     # 初始化学生得分字典
-#     student_scores = {}
-
-#     # 读取预测文件并比较答案
-#     with open(prediction_csv_path, 'r') as file:
-#         reader = csv.reader(file)
-#         next(reader)
-#         for row in reader:
-#             student_id, question_number, prediction = row[0], int(row[2]), row[3]
-#             if student_id not in student_scores:
-#                 student_scores[student_id] = {'Total Score': 0, 'Parts': {}}
-#             # 获取问题的部分和权重
-#             part = standard_answers[question_number]['part']
-#             weight = standard_answers[question_number]['weight']
-#             # 初始化该部分的得分
-#             if part not in student_scores[student_id]['Parts']:
-#                 student_scores[student_id]['Parts'][part] = {'Score': 0, 'Total': 0}
-#             # 更新得分
-#             if prediction == standard_answers[question_number]['answer']:
-#                 student_scores[student_id]['Parts'][part]['Score'] += weight
-#                 student_scores[student_id]['Total Score'] += weight
-#             student_scores[student_id]['Parts'][part]['Total'] += weight
-
-#     # 打印每个学生的部分得分和总得分
-#     for student_id, scores in student_scores.items():
-#         print(f"Student ID: {student_id}")
-#         for part, part_scores in scores['Parts'].items():
-#             print(f"  {part} - Score: {part_scores['Score']} / {part_scores['Total']}")
-#         print(f"Total Score: {scores['Total Score']}\n")
-
-
 def compare_answers(standard_csv_path, prediction_csv_path, output_csv_path):
     # 读取标准答案
     standard_answers = {}
@@ -127,7 +86,29 @@ def main(Qu_model_path,ID_model_path,pdf_path,out_path,save_answer,save_question
     # 将PDF转换为图像列表
     images = pdf_to_png(pdf_path)
     process_images(enumerate(images),save_answer,save_questions,save_ID,Qu_model,id_model,device,save_csv)
-    
+
+def run_main_process(Qu_model_path, ID_model_path, pdf_path, out_path, save_answer, save_questions, save_ID, save_csv, csv_path, save_result):
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    Qu_model = Questions_model().to(device)
+    Qu_model.load_state_dict(torch.load(Qu_model_path, map_location=device))
+    Qu_model.eval()
+
+    id_model = ID_model().to(device)  
+    id_model.load_state_dict(torch.load(ID_model_path, map_location=device))
+    id_model.eval()
+
+    if not os.path.exists(out_path):
+        os.makedirs(out_path)
+
+    images = pdf_to_png(pdf_path)
+    process_images(enumerate(images), save_answer, save_questions, save_ID, Qu_model, id_model, device, save_csv)
+
+    compare_answers(csv_path, 'results_txt/ID_Question.csv', save_result)
+
+
+
+
 
 if __name__ == "__main__":
     Qu_model_path = 'Question_Model/lr0.0005_ep10'  # 模型文件路径
@@ -147,3 +128,45 @@ if __name__ == "__main__":
 
     end_time_main = time.time()
     print(f"main function took {end_time_main - start_time_main} seconds to run.")
+
+
+
+# def compare_answers(standard_csv_path, prediction_csv_path):
+#     # 读取标准答案
+#     standard_answers = {}
+#     with open(standard_csv_path, 'r') as file:
+#         reader = csv.reader(file)
+#         next(reader)
+#         for row in reader:
+#             question_number, answer, part, weight = int(row[1]), row[4], row[5], int(row[6])
+#             standard_answers[question_number] = {'answer': answer, 'part': part, 'weight': weight}
+
+#     # 初始化学生得分字典
+#     student_scores = {}
+
+#     # 读取预测文件并比较答案
+#     with open(prediction_csv_path, 'r') as file:
+#         reader = csv.reader(file)
+#         next(reader)
+#         for row in reader:
+#             student_id, question_number, prediction = row[0], int(row[2]), row[3]
+#             if student_id not in student_scores:
+#                 student_scores[student_id] = {'Total Score': 0, 'Parts': {}}
+#             # 获取问题的部分和权重
+#             part = standard_answers[question_number]['part']
+#             weight = standard_answers[question_number]['weight']
+#             # 初始化该部分的得分
+#             if part not in student_scores[student_id]['Parts']:
+#                 student_scores[student_id]['Parts'][part] = {'Score': 0, 'Total': 0}
+#             # 更新得分
+#             if prediction == standard_answers[question_number]['answer']:
+#                 student_scores[student_id]['Parts'][part]['Score'] += weight
+#                 student_scores[student_id]['Total Score'] += weight
+#             student_scores[student_id]['Parts'][part]['Total'] += weight
+
+#     # 打印每个学生的部分得分和总得分
+#     for student_id, scores in student_scores.items():
+#         print(f"Student ID: {student_id}")
+#         for part, part_scores in scores['Parts'].items():
+#             print(f"  {part} - Score: {part_scores['Score']} / {part_scores['Total']}")
+#         print(f"Total Score: {scores['Total Score']}\n")
