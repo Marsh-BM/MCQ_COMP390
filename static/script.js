@@ -46,10 +46,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 为更新PDF按钮添加上传功能
     document.getElementById('update-pdf').addEventListener('click', function() {
-        var formData = new FormData(document.getElementById('file-upload-form'));
-        // 仅保留PDF文件
-        formData.delete('csv-file'); // 移除CSV文件
-        fetch('/upload', {
+        var formData = new FormData(document.getElementById('file-upload-pdf'));
+        fetch('/upload_pdf', { // Ensure this matches the Flask route exactly
             method: 'POST',
             body: formData
         })
@@ -65,10 +63,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 为更新CSV按钮添加上传功能
     document.getElementById('update-csv').addEventListener('click', function() {
-        var formData = new FormData(document.getElementById('file-upload-form'));
-        // 仅保留CSV文件
-        formData.delete('pdf-file'); // 移除PDF文件
-        fetch('/upload', {
+        var formData = new FormData(document.getElementById('file-upload-csv'));
+        fetch('/upload_csv', { // Ensure this matches the Flask route exactly
             method: 'POST',
             body: formData
         })
@@ -81,54 +77,35 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Error:', error);
         });
     });
-// document.getElementById('experience-btn').addEventListener('click', function() {
-//     fetch('/grade', { // Assuming '/grade' is the endpoint that triggers the grading process
-//         method: 'POST',
-//     })
-//     .then(response => {
-//         if(response.ok) {
-//             return response.blob(); // Assuming the response is the graded results in a CSV file
-//         }
-//         throw new Error('Network response was not ok.');
-//     })
-//     .then(blob => {
-//         const url = window.URL.createObjectURL(blob);
-//         const link = document.createElement('a');
-//         link.href = url;
-//         link.download = 'graded_results.csv'; // Assuming you want to download the results as a CSV
-//         document.body.appendChild(link);
-//         link.click();
-//         document.body.removeChild(link);
-//     })
-//     .catch(error => {
-//         console.error('Error:', error);
-//     });
-// });
 
-document.getElementById('experience-btn').addEventListener('click', function() {
-    fetch('/grade', { // Assuming '/grade' is the endpoint that triggers the grading process
-        method: 'POST',
-    })
-    .then(response => {
-        if(response.ok) {
-            return response.blob(); // Assuming the response is the graded results in a CSV file
-        }
-        throw new Error('Network response was not ok.');
-    })
-    .then(blob => {
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'graded_results.csv'; // Assuming you want to download the results as a CSV
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    })
-    .catch(error => {
-        console.error('Error:', error);
+    document.getElementById('experience-btn').addEventListener('click', function() {
+        // Start the loading animation
+        document.getElementById('loader').style.display = 'block';
+    
+        fetch('/grade', { // Assuming '/grade' is the endpoint that triggers the grading process
+            method: 'POST',
+        })
+        .then(response => {
+            // Stop the loading animation when a response is received
+            document.getElementById('loader').style.display = 'none';
+            
+            if(response.ok) {
+                return response.blob(); // Assuming the response is the graded results in a CSV file
+            }
+            throw new Error('Network response was not ok.');
+        })
+        .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'graded_results.csv'; // Assuming you want to download the results as a CSV
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
     });
-});
-
-
 
 });

@@ -4,13 +4,17 @@ import os
 from main import run_main_process  # 确保 main.py 在 Flask 应用的搜索路径中
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = 'uploaded_files'
+app.secret_key = os.urandom(24)
+
+app.config['UPLOAD_FOLDER_PDF'] = 'uploaded_PDF'
+app.config['UPLOAD_FOLDER_CSV'] = 'uploaded_CSV'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # Limit file size to 16MB
 app.config['ALLOWED_EXTENSIONS'] = {'pdf', 'csv'}
 app.config['RESULT_FOLDER'] = 'results_txt'
 
 # Ensure the upload folder exists
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+os.makedirs(app.config['UPLOAD_FOLDER_PDF'], exist_ok=True)
+os.makedirs(app.config['UPLOAD_FOLDER_CSV'], exist_ok=True)
 os.makedirs(app.config['RESULT_FOLDER'], exist_ok=True)  # Ensure the result folder exists
 
 # 存储最近上传的PDF和CSV文件名
@@ -29,38 +33,50 @@ def home():
     return render_template('Home.html')
 
 
-@app.route('/upload', methods=['POST'])
-def upload_files():
+@app.route('/upload_pdf', methods=['POST'])
+def upload_pdf():
     uploaded = False  # Flag to check if any file was uploaded
 
     if 'pdf-file' in request.files:
         pdf_file = request.files['pdf-file']
         if pdf_file and allowed_file(pdf_file.filename):
             pdf_filename = secure_filename(pdf_file.filename)
-            pdf_file.save(os.path.join(app.config['UPLOAD_FOLDER'], pdf_filename))
+            pdf_file.save(os.path.join(app.config['UPLOAD_FOLDER_PDF'], pdf_filename))
             uploaded_files['pdf'] = pdf_filename
-            uploaded = True
-
-    if 'csv-file' in request.files:
-        csv_file = request.files['csv-file']
-        if csv_file and allowed_file(csv_file.filename):
-            csv_filename = secure_filename(csv_file.filename)
-            csv_file.save(os.path.join(app.config['UPLOAD_FOLDER'], csv_filename))
-            uploaded_files['csv'] = csv_filename
             uploaded = True
 
     if not uploaded:
         flash('No file selected or file type not allowed.')
         return redirect(request.url)
 
+    flash('PDF uploaded successfully.')
+    return redirect(url_for('home'))
+
+@app.route('/upload_csv', methods=['POST'])
+def upload_csv():
+    uploaded = False  # Flag to check if any file was uploaded
+
+    if 'csv-file' in request.files:
+        csv_file = request.files['csv-file']
+        if csv_file and allowed_file(csv_file.filename):
+            csv_filename = secure_filename(csv_file.filename)
+            csv_file.save(os.path.join(app.config['UPLOAD_FOLDER_CSV'], csv_filename))
+            uploaded_files['csv'] = csv_filename
+            uploaded = True
+
+    if not uploaded:
+        flash('No file selected or file type not allowed.')
+        return redirect(request.url)
+    
+    flash('CSV uploaded successfully.')
     return redirect(url_for('home'))
 
 @app.route('/grade', methods=['POST'])
 def grade():
     if uploaded_files['pdf'] and uploaded_files['csv']:
         # 构建完整路径
-        pdf_path = os.path.join(app.config['UPLOAD_FOLDER'], uploaded_files['pdf'])
-        csv_path = os.path.join(app.config['UPLOAD_FOLDER'], uploaded_files['csv'])
+        pdf_path = os.path.join(app.config['UPLOAD_FOLDER_PDF'], uploaded_files['pdf'])
+        csv_path = os.path.join(app.config['UPLOAD_FOLDER_CSV'], uploaded_files['csv'])
         out_path = "JPG_Document/TruthData"
         save_answer = 'Answer_area/test_new'
         save_questions = 'Validation/test_new'

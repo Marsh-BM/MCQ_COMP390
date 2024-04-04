@@ -15,7 +15,7 @@
     </div>
 
     <div class="content">
-        <form id="file-upload-form" action="/upload" method="post" enctype="multipart/form-data">
+        <form id="file-upload-pdf" action="/upload_pdf/" method="post" enctype="multipart/form-data">
             <div class="left-part">
                 <!-- PDF file upload section -->
                 <input type="file" name="pdf-file" id="pdf-file-input" accept=".pdf" hidden onchange="previewPDF(event)">
@@ -23,6 +23,9 @@
                 <button type="button" id="update-pdf" class="update-btn">Update PDF</button>
                 <embed id="pdf-preview" type="application/pdf"></embed>
             </div>
+        </form>
+
+        <form id="file-upload-csv" action="/upload_csv/" method="post" enctype="multipart/form-data">
             <div class="right-part">
                 <!-- CSV file upload section -->
                 <input type="file" name="csv-file" id="csv-file-input" accept=".csv" hidden onchange="previewCSV(event)">
@@ -30,12 +33,14 @@
                 <button type="button" id="update-csv" class="update-btn">Update CSV</button>
                 <div id="csv-preview" class="placeholder-image"></div>
             </div>
-            <!-- "Experience Now" button with an ID for JavaScript targeting -->
         </form>
     </div>
 
     <div class="bottom-part">
-        <button type="button" id="experience-btn" class="experience-btn">Experience Now</button>
+        <div class="experience-loader-container">
+            <button type="button" id="experience-btn" class="experience-btn">Experience Now</button>
+            <div class="loader" id="loader"></div> <!-- Loading animation -->
+        </div>
     </div>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
