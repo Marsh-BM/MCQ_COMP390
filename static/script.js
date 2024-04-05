@@ -80,7 +80,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.getElementById('experience-btn').addEventListener('click', function() {
         // Start the loading animation
-        document.getElementById('loader').style.display = 'block';
+        const loader = document.getElementById('loader');
+        loader.style.display = 'block';
     
         fetch('/grade', { // Assuming '/grade' is the endpoint that triggers the grading process
             method: 'POST',
@@ -106,6 +107,8 @@ document.addEventListener('DOMContentLoaded', function() {
         .catch(error => {
             console.error('Error:', error);
         });
+
+        
     });
 
 });

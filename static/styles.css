@@ -70,14 +70,15 @@ body, html {
 }
 
 #pdf-preview, #csv-preview {
-    border: 1px solid #050505;
+    border: 1px solid #a09f9f;
     width: calc(100%); /* Adjust width based on parent padding */
     height: 600px; /* Consistent height */
     box-sizing: border-box; /* Include padding and border in width/height */
     overflow-y: auto; /* Enable scrolling */
 }
 
-.document-button, .update-btn, .experience-btn {
+
+.document-button, .update-btn{
     padding: 10px 20px;
     font-size: 16px;
     color: #007bff;
@@ -96,6 +97,20 @@ body, html {
 .experience-btn {
     height: 50px;
     width: 300px;
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #ffffff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+    text-align: center;
+    display: inline-block;
+    text-decoration: none;
+    margin: 0 10px;
+    margin-bottom: 10px;
+    
 }
 
 .document-button:hover, .update-btn:hover, .experience-btn:hover {
@@ -146,4 +161,5 @@ body, html {
     width: 50px;
     height: 50px;
     animation: spin 2s linear infinite;
+    display: none; /* Loader is hidden by default */
 }
