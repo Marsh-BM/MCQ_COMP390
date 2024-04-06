@@ -37,8 +37,8 @@ def compare_answers(standard_csv_path, prediction_csv_path, output_csv_path):
             if student_id not in student_answers:
                 student_answers[student_id] = {'Page': page, 'Answers': {}}
 
-            # 记录答案，正确答案大写，错误答案小写，并保留题号
-            student_answers[student_id]['Answers'][question_number] = prediction.upper() if prediction == correct else prediction.lower()
+            # 记录答案，正确答案大写，错误答案小写，并保留题号，对于None使用'#'
+            student_answers[student_id]['Answers'][question_number] = '#' if prediction == 'None' else (prediction.upper() if prediction == correct else prediction.lower())
 
             # 初始化学生分数记录
             if student_id not in student_scores:

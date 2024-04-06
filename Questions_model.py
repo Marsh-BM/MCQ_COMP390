@@ -14,10 +14,10 @@ import os
 os.environ['KMP_DUPLICATE_LIB_OK']='TRUE'
 
 # 环境配置和全局变量
-# dataset_path = 'train_data'
-# test_data_path = 'test_data'
-dataset_path = 'ID_train'
-test_data_path = 'ID_test'
+dataset_path = 'train_data_1'
+test_data_path = 'test_data_1'
+# dataset_path = 'ID_train'
+# test_data_path = 'ID_test'
 torch.manual_seed(0)  # 确保可复现性
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  # 检查并设置设备
 print(f"Using {device} device")
@@ -27,7 +27,7 @@ def get_transforms():
     return transforms.Compose([
         # transforms.Resize((30, 150)), # 将图像大小统一调整为150x150
         # 重置ID的resize
-        transforms.Resize((184, 30)),
+        transforms.Resize((30, 150)),
         transforms.Grayscale(num_output_channels=1),
         # transforms.RandomRotation(20), # 随机旋转图像，角度在-20到20度之间    数据增强1
         # transforms.RandomHorizontalFlip(),  # 随机进行水平翻转，以增加数据多样性
@@ -38,8 +38,8 @@ def get_transforms():
 
 # 加载数据集
 def load_datasets(dataset_path, transform):
-    # CUSTOM_CLASS_TO_IDX = {'A': 0, 'B': 1, 'C': 2, 'D':3, 'E':4, 'None':5}
-    CUSTOM_CLASS_TO_IDX = {'1_file': 1, '2_file': 2, '3_file': 3, '4_file':4, '5_file':5, '6_file':6, '7_file':7, '8_file':8, '9_file':9}
+    CUSTOM_CLASS_TO_IDX = {'A': 0, 'B': 1, 'C': 2, 'D':3, 'E':4, 'None':5}
+    # CUSTOM_CLASS_TO_IDX = {'1_file': 1, '2_file': 2, '3_file': 3, '4_file':4, '5_file':5, '6_file':6, '7_file':7, '8_file':8, '9_file':9}
     full_dataset = datasets.ImageFolder(root=dataset_path, transform=transform)
     full_dataset.class_to_idx = CUSTOM_CLASS_TO_IDX
     return full_dataset
@@ -186,7 +186,7 @@ def main_train(model_filename):
     model = Questions_model().to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.0005)
-    num_epochs = 10
+    num_epochs = 20
 
     # 训练数据
     train_model(model, num_epochs, train_loader, criterion, optimizer, device, model_path=model_filename)
@@ -212,8 +212,8 @@ def main_notrain(model_filename):
     test_model(test_loader, model, device)
 
 if __name__ == "__main__":
-    # model_filename = 'lr0.0005_ep10'  # 模型文件名
-    model_filename = 'ID_lr0.0005_ep10'
+    model_filename = 'lr0.0005_ep10_###'  # 模型文件名
+    # model_filename = 'ID_lr0.0005_ep10'
     main_train(model_filename)
     # main_notrain(model_filename)
 

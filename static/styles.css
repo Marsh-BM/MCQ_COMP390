@@ -44,7 +44,7 @@ body, html {
     display: flex;
     justify-content: space-evenly; /* Evenly distributes content */
     align-items: flex-start; /* Align items to the top */
-    padding-top: 60px; /* Header height adjustment */
+    padding-top: 10px; /* Header height adjustment */
     width: 100%; /* Set content width to full width of the viewport */
     margin-top: 60px; /* Space below the header */
     margin-bottom: 20px;
@@ -62,7 +62,7 @@ body, html {
 .pdf-upload, .csv-upload {
     border: 1px solid #ccc; /* Visible border */
     width: 100%; /* Full width of the parent container */
-    height: 500px; /* Set a fixed height for the preview area */
+    height: 400px; /* Set a fixed height for the preview area */
     box-sizing: border-box; /* Border included in width and height */
     overflow-y: auto; /* Allow vertical scrolling within the preview area */
     margin-top: 20px; /* Space between the button and the preview area */
@@ -72,7 +72,7 @@ body, html {
 #pdf-preview, #csv-preview {
     border: 1px solid #a09f9f;
     width: calc(100%); /* Adjust width based on parent padding */
-    height: 600px; /* Consistent height */
+    height: 400px; /* Consistent height */
     box-sizing: border-box; /* Include padding and border in width/height */
     overflow-y: auto; /* Enable scrolling */
 }

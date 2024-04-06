@@ -8,7 +8,7 @@ app.secret_key = os.urandom(24)
 
 app.config['UPLOAD_FOLDER_PDF'] = 'uploaded_PDF'
 app.config['UPLOAD_FOLDER_CSV'] = 'uploaded_CSV'
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # Limit file size to 16MB
+# app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # Limit file size to 16MB
 app.config['ALLOWED_EXTENSIONS'] = {'pdf', 'csv'}
 app.config['RESULT_FOLDER'] = 'results_txt'
 
@@ -85,9 +85,11 @@ def grade():
         save_csv = 'results_txt/ID_Question.csv' 
         # 这个是最终与正确答案比较后的结果，也就是我要返回给用户的csv
         save_result = os.path.join(app.config['RESULT_FOLDER'], 'Student_Scores.csv')
-        
+        # Question_model = 'Question_Model/lr0.0005_ep10'
+        Question_model = 'lr0.0005_ep20_###'
+        ID_model = 'ID_Model/ID_lr0.00005_ep30'
 
-        run_main_process('Question_Model/lr0.0005_ep10', 'ID_Model/ID_lr0.00005_ep30',
+        run_main_process(Question_model, ID_model,
                          pdf_path, out_path, save_answer, save_questions, save_ID, save_csv, csv_path, save_result)
         
         # 下载结果
