@@ -8,14 +8,17 @@ import torch.nn.functional as F
 import time
 import matplotlib.pyplot as plt
 import numpy as np
+from sklearn.metrics import confusion_matrix, classification_report
+import matplotlib.pyplot as plt
+import seaborn as sns  # 确保你的环境中安装了seaborn
 
 # 这里得bug有可能导致环境崩溃！！！！并不是一个好的解决方法
 import os
 os.environ['KMP_DUPLICATE_LIB_OK']='TRUE'
 
 # 环境配置和全局变量
-dataset_path = 'train_data_1'
-test_data_path = 'test_data_1'
+dataset_path = 'train_data_2'
+test_data_path = 'test_data_2'
 # dataset_path = 'ID_train'
 # test_data_path = 'ID_test'
 torch.manual_seed(0)  # 确保可复现性
@@ -45,7 +48,7 @@ def load_datasets(dataset_path, transform):
     return full_dataset
 
 # 数据加载器
-def get_dataloaders(train_dataset,batch_size=32):
+def get_dataloaders(train_dataset,batch_size=8):
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     return train_loader
 
@@ -75,7 +78,7 @@ class Questions_model(nn.Module):
         return x
 
 # 训练和验证函数
-def train_model(model, num_epochs, train_loader, criterion, optimizer, device, model_path):# 对模型进行命名！！！！！
+def train_model(model, num_epochs, train_loader, criterion, optimizer, scheduler, device, model_path):# 对模型进行命名！！！！！
     # 初始化存储每个epoch的训练损失和准确率的列表
     train_losses = []
     train_accuracies = []
@@ -111,6 +114,7 @@ def train_model(model, num_epochs, train_loader, criterion, optimizer, device, m
         train_accuracies.append(epoch_acc)
 
         print(f'Epoch {epoch + 1}/{num_epochs}, Train Loss: {epoch_loss:.4f}, Train Accuracy: {epoch_acc:.4f}')
+        scheduler.step()  # 更新学习率
 
     # 保存模型参数到指定的文件
     torch.save(model.state_dict(), model_path)
@@ -119,7 +123,7 @@ def train_model(model, num_epochs, train_loader, criterion, optimizer, device, m
 
 def load_test_data(test_data_path, transform):
     test_dataset = datasets.ImageFolder(root=test_data_path, transform=transform)
-    test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
+    test_loader = DataLoader(test_dataset, batch_size=8, shuffle=False)
     return test_loader
 
 def test_model(test_loader, model, device):
@@ -127,20 +131,26 @@ def test_model(test_loader, model, device):
     correct = 0
     total = 0
     misclassified = []  # 用于记录误分类的信息
+    all_labels = []  # 收集所有真实标签
+    all_preds = []  # 收集所有预测标签
 
     with torch.no_grad():  # 不计算梯度，加速推理
         for batch_idx, (images, labels) in enumerate(test_loader):
             images, labels = images.to(device), labels.to(device)
             outputs = model(images)
-            _, predicted = torch.max(outputs.data, 1)
+            _, predicted = torch.max(outputs, 1)
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
 
+            # 收集标签和预测结果
+            all_labels.extend(labels.cpu().numpy())
+            all_preds.extend(predicted.cpu().numpy())
+
             # 检查哪些图片分类错误了
             mismatches = (predicted != labels)
-            mis_idxs = np.where(mismatches.cpu().numpy())[0]  # 从mismatches张量中提取索引
+            mis_idxs = np.where(mismatches.cpu().numpy())[0]
             for idx in mis_idxs:
-                img_path = test_loader.dataset.samples[batch_idx * test_loader.batch_size + idx][0]  # 获取图片路径
+                img_path = test_loader.dataset.samples[batch_idx * test_loader.batch_size + idx][0]
                 img_name = os.path.basename(img_path)
                 class_label = test_loader.dataset.classes[labels[idx].item()]
                 predicted_label = test_loader.dataset.classes[predicted[idx].item()]
@@ -154,8 +164,71 @@ def test_model(test_loader, model, device):
         for item in misclassified:
             print(f"Name {item[0]}: (True: {item[1]}, Pred: {item[2]})")
 
-    return test_accuracy, misclassified
+    # 返回包括所有真实标签和预测标签的列表
+    return test_accuracy, misclassified, all_labels, all_preds
 
+def visualize_performance(y_true, y_pred, class_names):
+    cm = confusion_matrix(y_true, y_pred)
+    cr = classification_report(y_true, y_pred, target_names=class_names)
+    print("Classification Report:\n", cr)
+
+    fig, ax = plt.subplots(figsize=(8, 6))
+    sns.heatmap(cm, annot=True, fmt='d', ax=ax, cmap='Blues', 
+                xticklabels=class_names, yticklabels=class_names)
+    plt.ylabel('Actual')
+    plt.xlabel('Predicted')
+    plt.title('Confusion Matrix')
+    plt.show()
+
+
+# 主执行逻辑
+def main_train(model_filename):
+    transforms = get_transforms()
+    train_dataset= load_datasets(dataset_path, transforms)
+    train_loader= get_dataloaders(train_dataset)
+    model = Questions_model().to(device)
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.Adam(model.parameters(), lr=0.0005)
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.1)
+    num_epochs = 25
+    
+    # 训练数据
+    train_model(model, num_epochs, train_loader, criterion, optimizer, scheduler, device, model_path=model_filename)
+
+    # 测试模型
+    test_loader = load_test_data(test_data_path, transforms)
+    model.load_state_dict(torch.load(model_filename))  # 确保已加载模型参数
+    model.to(device)
+    test_accuracy, misclassified, y_true, y_pred = test_model(test_loader, model, device)
+
+    # 计算和可视化性能指标...
+    class_names = test_loader.dataset.classes
+    visualize_performance(y_true, y_pred, class_names)
+
+
+
+if __name__ == "__main__":
+    model_filename = 'bz8_lr0.0005_ep25_2'  # 模型文件名
+    # model_filename = 'ID_lr0.0005_ep10'
+    main_train(model_filename)
+    # main_notrain(model_filename)
+
+
+
+
+def main_notrain(model_filename):
+    # 设置变换、加载测试集等
+    transforms = get_transforms()
+    test_dataset = datasets.ImageFolder(root=test_data_path, transform=transforms)
+    test_loader = DataLoader(test_dataset, batch_size=8, shuffle=False)
+
+    # 初始化模型并加载预训练的权重
+    model = Questions_model().to(device)
+    model.load_state_dict(torch.load(model_filename))  # 确保替换为你的模型文件路径
+    model.to(device)
+
+    # 测试模型
+    test_model(test_loader, model, device)
 
 
 # 绘制训练和验证的损失和准确率
@@ -176,45 +249,3 @@ def plot_metrics(train_loss, train_acc, save_path):
     plt.legend()
     plt.savefig(save_path)
     plt.show()
-
-
-# 主执行逻辑
-def main_train(model_filename):
-    transforms = get_transforms()
-    train_dataset= load_datasets(dataset_path, transforms)
-    train_loader= get_dataloaders(train_dataset)
-    model = Questions_model().to(device)
-    criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.0005)
-    num_epochs = 20
-
-    # 训练数据
-    train_model(model, num_epochs, train_loader, criterion, optimizer, device, model_path=model_filename)
-
-    # 测试模型
-    test_loader = load_test_data(test_data_path, transforms)
-    model.load_state_dict(torch.load(model_filename))  # 确保已加载模型参数
-    model.to(device)
-    test_model(test_loader, model, device)
-
-def main_notrain(model_filename):
-    # 设置变换、加载测试集等
-    transforms = get_transforms()
-    test_dataset = datasets.ImageFolder(root=test_data_path, transform=transforms)
-    test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
-
-    # 初始化模型并加载预训练的权重
-    model = Questions_model().to(device)
-    model.load_state_dict(torch.load(model_filename))  # 确保替换为你的模型文件路径
-    model.to(device)
-
-    # 测试模型
-    test_model(test_loader, model, device)
-
-if __name__ == "__main__":
-    model_filename = 'lr0.0005_ep10_###'  # 模型文件名
-    # model_filename = 'ID_lr0.0005_ep10'
-    main_train(model_filename)
-    # main_notrain(model_filename)
-
-    

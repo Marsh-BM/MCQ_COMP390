@@ -86,7 +86,12 @@ def grade():
         # 这个是最终与正确答案比较后的结果，也就是我要返回给用户的csv
         save_result = os.path.join(app.config['RESULT_FOLDER'], 'Student_Scores.csv')
         # Question_model = 'Question_Model/lr0.0005_ep10'
-        Question_model = 'lr0.0005_ep20_###'
+        # Question_model = 'lr0.0005_ep20_###'
+        # Question_model = 'lr0.0005_ep10_###'
+        # Question_model = 'lr0.0005_ep20_###_new'
+        # Question_model = 'bz8_lr0.0005_ep40_1'
+        # Question_model = 'bz8_lr0.0005_ep40_2'
+        Question_model = 'bz8_lr0.0005_ep25_2'
         ID_model = 'ID_Model/ID_lr0.00005_ep30'
 
         run_main_process(Question_model, ID_model,
