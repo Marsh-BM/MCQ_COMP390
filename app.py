@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, sen
 from werkzeug.utils import secure_filename
 import os
 from main import run_main_process  # 确保 main.py 在 Flask 应用的搜索路径中
+import shutil
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -96,7 +97,8 @@ def grade():
         # Question_model = 'bz8_lr0.0005_ep40_1'
         # Question_model = 'bz8_lr0.0005_ep40_2'
         # Question_model = 'bz8_lr0.0005_ep25_2'
-        Question_model = 'bz8_lr0.0005_ep45_3'
+        # Question_model = 'bz8_lr0.0005_ep45_3'
+        Question_model = '4CN_bz8_lr0.0005_ep45_3'
         ID_model = 'ID_Model/ID_lr0.00005_ep30'
 
         run_main_process(Question_model, ID_model,
@@ -105,11 +107,27 @@ def grade():
         # 下载结果
         response = send_from_directory(app.config['RESULT_FOLDER'], 'Student_Scores.csv', as_attachment=True)
         
-        # 删除提供的PDF和CSV文件
+        # 删除提供的PDF和CSV文件目录下的所有文件
         try:
-            for pdf_path in pdf_paths:
-                os.remove(pdf_path)
-            os.remove(csv_path)
+            pdf_folder = app.config['UPLOAD_FOLDER_PDF']
+            csv_folder = app.config['UPLOAD_FOLDER_CSV']
+
+            # 删除PDF目录下的所有文件
+            for filename in os.listdir(pdf_folder):
+                file_path = os.path.join(pdf_folder, filename)
+                if os.path.isfile(file_path) or os.path.islink(file_path):
+                    os.unlink(file_path)
+                elif os.path.isdir(file_path):
+                    shutil.rmtree(file_path)
+            
+            # 删除CSV目录下的所有文件
+            for filename in os.listdir(csv_folder):
+                file_path = os.path.join(csv_folder, filename)
+                if os.path.isfile(file_path) or os.path.islink(file_path):
+                    os.unlink(file_path)
+                elif os.path.isdir(file_path):
+                    shutil.rmtree(file_path)
+
             print("Uploaded files have been deleted.")
         except Exception as e:
             print(f"Error deleting uploaded files: {e}")

@@ -56,25 +56,41 @@ def get_dataloaders(train_dataset,batch_size=8):
 class Questions_model(nn.Module):
     def __init__(self):
         super(Questions_model, self).__init__()
-        # 定义卷积层和全连接层
-        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, padding=1)  # 第一个卷积层
-        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)  # 第二个卷积层
-        self.conv3 = nn.Conv2d(64, 128, kernel_size=3, padding=1)  # 第三个卷积层
-        self.pool = nn.MaxPool2d(kernel_size=2, stride=2)  # 最大池化层，用于降维
-        self.fc1 = nn.Linear(128 * 3 * 18, 512)  # 第一个全连接层，数字需要根据前面层的输出调整
-        self.fc2 = nn.Linear(512, 7)  # 第二个全连接层，输出7个类别
-        self.dropout = nn.Dropout(0.5)  # Dropout层，用于减少过拟合
-
+        # 卷积层定义
+        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, padding=1)
+        self.bn1 = nn.BatchNorm2d(32)  # Batch Norm层
+        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, padding=1)
+        self.bn2 = nn.BatchNorm2d(64)  # Batch Norm层
+        self.conv3 = nn.Conv2d(64, 128, kernel_size=3, padding=1)
+        self.bn3 = nn.BatchNorm2d(128)  # Batch Norm层
+        self.conv4 = nn.Conv2d(128, 256, kernel_size=3, padding=1)  # 新增加的卷积层
+        self.bn4 = nn.BatchNorm2d(256)  # 对应的Batch Norm层
+        self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
+        
+        # 全连接层定义
+        self.fc1 = nn.Linear(256 * 1 * 9, 512)
+        self.bn5 = nn.BatchNorm1d(512)  # Batch Norm层
+        self.fc2 = nn.Linear(512, 256)  # 新增加的全连接层
+        self.bn6 = nn.BatchNorm1d(256)  # 对应的Batch Norm层
+        self.fc3 = nn.Linear(256, 7)  # 输出层
+        self.dropout = nn.Dropout(0.5)
 
     def forward(self, x):
-        # 定义前向传播过程
-        x = self.pool(F.relu(self.conv1(x)))  # 应用第一个卷积层+激活函数+池化
-        x = self.pool(F.relu(self.conv2(x)))  # 应用第二个卷积层+激活函数+池化
-        x = self.pool(F.relu(self.conv3(x)))  # 应用第三个卷积层+激活函数+池化
-        x = x.view(-1, 128 * 3 * 18)  # 展平特征图
-        x = F.relu(self.fc1(x))  # 应用第一个全连接层+激活函数
-        x = self.dropout(x)  # 应用Dropout
-        x = self.fc2(x)  # 应用第二个全连接层，得到最终的输出
+        # 应用卷积层、Batch Norm层和激活函数
+        x = self.pool(F.relu(self.bn1(self.conv1(x))))
+        x = self.pool(F.relu(self.bn2(self.conv2(x))))
+        x = self.pool(F.relu(self.bn3(self.conv3(x))))
+        x = self.pool(F.relu(self.bn4(self.conv4(x))))  # 新增加的卷积层和Batch Norm层
+        
+        # 展平特征图
+        x = x.view(-1, 256 * 1 * 9)
+        
+        # 应用全连接层、Batch Norm层和激活函数
+        x = F.relu(self.bn5(self.fc1(x)))
+        x = self.dropout(x)
+        x = F.relu(self.bn6(self.fc2(x)))  # 新增加的全连接层和Batch Norm层
+        x = self.dropout(x)
+        x = self.fc3(x)
         return x
 
 # 训练和验证函数
@@ -208,7 +224,7 @@ def main_train(model_filename):
 
 
 if __name__ == "__main__":
-    model_filename = 'bz8_lr0.0005_ep45_3'  # 模型文件名
+    model_filename = '4CN_bz8_lr0.0005_ep45_3'  # 模型文件名
     # model_filename = 'ID_lr0.0005_ep10'
     main_train(model_filename)
     # main_notrain(model_filename)
