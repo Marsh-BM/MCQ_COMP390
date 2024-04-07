@@ -21,7 +21,8 @@
                 <input type="file" name="pdf-file" id="pdf-file-input" accept=".pdf" multiple hidden onchange="previewPDF(event)">
                 <label for="pdf-file-input" class="document-button">Upload PDF</label>
                 <button type="button" id="update-pdf" class="update-btn">Update PDF</button>
-                <embed id="pdf-preview" type="application/pdf"></embed>
+                <div id="pdf-file-names" class="pdf-upload"></div> <!-- 用于显示文件名 -->
+                <embed id="pdf-preview" type="application/pdf"></embed> <!-- 保留用于实际PDF预览 -->
             </div>
         </form>
 

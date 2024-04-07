@@ -1,15 +1,25 @@
 // 当 PDF 文件选择后的处理函数
+// function previewPDF(event) {
+//     var output = document.getElementById('pdf-preview');
+//     output.src = URL.createObjectURL(event.target.files[0]);
+//     output.style.display = 'block'; // 显示预览
+// }
 function previewPDF(event) {
-    var output = document.getElementById('pdf-preview');
+    // 获取用于显示文件名的容器
+    var output = document.getElementById('pdf-file-names');
     output.innerHTML = ''; // 清空之前的内容
+
+    // 遍历每个选中的文件
     Array.from(event.target.files).forEach((file, index) => {
+        // 为每个文件创建一个段落元素
         var fileNameDisplay = document.createElement('p');
         fileNameDisplay.textContent = `File ${index + 1}: ${file.name}`;
-        output.appendChild(fileNameDisplay);
+        output.appendChild(fileNameDisplay); // 将段落元素添加到显示容器中
     });
-    output.style.display = 'block'; // 显示预览
-}
 
+    // 确保显示容器是可见的（如果之前有设置特定的样式来隐藏它的话）
+    output.style.display = 'block'; 
+}
 
 // 当 CSV 文件选择后的处理函数
 function previewCSV(event) {
