@@ -19,7 +19,7 @@ os.makedirs(app.config['RESULT_FOLDER'], exist_ok=True)  # Ensure the result fol
 
 # 存储最近上传的PDF和CSV文件名
 uploaded_files = {
-    'pdf': None,
+    'pdf': [],
     'csv': None
 }
 
@@ -35,22 +35,26 @@ def home():
 
 @app.route('/upload_pdf', methods=['POST'])
 def upload_pdf():
-    uploaded = False  # Flag to check if any file was uploaded
+    files = request.files.getlist('pdf-file')  # 获取所有上传的PDF文件
+    if not files:
+        flash('No file selected.')
+        return redirect(url_for('home'))
 
-    if 'pdf-file' in request.files:
-        pdf_file = request.files['pdf-file']
-        if pdf_file and allowed_file(pdf_file.filename):
-            pdf_filename = secure_filename(pdf_file.filename)
-            pdf_file.save(os.path.join(app.config['UPLOAD_FOLDER_PDF'], pdf_filename))
-            uploaded_files['pdf'] = pdf_filename
-            uploaded = True
+    uploaded_files['pdf'].clear()  # 清除先前的文件列表
 
-    if not uploaded:
-        flash('No file selected or file type not allowed.')
-        return redirect(request.url)
+    for file in files:
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER_PDF'], filename))
+            uploaded_files['pdf'].append(filename)  # 添加文件名到列表
+        else:
+            flash('File type not allowed.')
+            return redirect(request.url)
 
     flash('PDF uploaded successfully.')
     return redirect(url_for('home'))
+
+
 
 @app.route('/upload_csv', methods=['POST'])
 def upload_csv():
@@ -75,7 +79,7 @@ def upload_csv():
 def grade():
     if uploaded_files['pdf'] and uploaded_files['csv']:
         # 构建完整路径
-        pdf_path = os.path.join(app.config['UPLOAD_FOLDER_PDF'], uploaded_files['pdf'])
+        pdf_paths = 'uploaded_PDF'
         csv_path = os.path.join(app.config['UPLOAD_FOLDER_CSV'], uploaded_files['csv'])
         out_path = "JPG_Document/TruthData"
         save_answer = 'Answer_area/test_new'
@@ -96,14 +100,15 @@ def grade():
         ID_model = 'ID_Model/ID_lr0.00005_ep30'
 
         run_main_process(Question_model, ID_model,
-                         pdf_path, out_path, save_answer, save_questions, save_ID, save_csv, csv_path, save_result)
+                         pdf_paths, out_path, save_answer, save_questions, save_ID, save_csv, csv_path, save_result)
         
         # 下载结果
         response = send_from_directory(app.config['RESULT_FOLDER'], 'Student_Scores.csv', as_attachment=True)
         
         # 删除提供的PDF和CSV文件
         try:
-            os.remove(pdf_path)
+            for pdf_path in pdf_paths:
+                os.remove(pdf_path)
             os.remove(csv_path)
             print("Uploaded files have been deleted.")
         except Exception as e:

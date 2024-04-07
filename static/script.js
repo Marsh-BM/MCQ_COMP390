@@ -1,9 +1,15 @@
 // 当 PDF 文件选择后的处理函数
 function previewPDF(event) {
     var output = document.getElementById('pdf-preview');
-    output.src = URL.createObjectURL(event.target.files[0]);
+    output.innerHTML = ''; // 清空之前的内容
+    Array.from(event.target.files).forEach((file, index) => {
+        var fileNameDisplay = document.createElement('p');
+        fileNameDisplay.textContent = `File ${index + 1}: ${file.name}`;
+        output.appendChild(fileNameDisplay);
+    });
     output.style.display = 'block'; // 显示预览
 }
+
 
 // 当 CSV 文件选择后的处理函数
 function previewCSV(event) {

@@ -18,7 +18,7 @@
         <form id="file-upload-pdf" action="/upload_pdf/" method="post" enctype="multipart/form-data">
             <div class="left-part">
                 <!-- PDF file upload section -->
-                <input type="file" name="pdf-file" id="pdf-file-input" accept=".pdf" hidden onchange="previewPDF(event)">
+                <input type="file" name="pdf-file" id="pdf-file-input" accept=".pdf" multiple hidden onchange="previewPDF(event)">
                 <label for="pdf-file-input" class="document-button">Upload PDF</label>
                 <button type="button" id="update-pdf" class="update-btn">Update PDF</button>
                 <embed id="pdf-preview" type="application/pdf"></embed>

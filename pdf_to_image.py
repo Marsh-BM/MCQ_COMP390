@@ -8,6 +8,7 @@ from PIL import Image
 import csv
 from ID_scanner import IDScanner
 import torch
+import glob
 
 def pdf_to_png(pdf_path):
     doc = fitz.open(pdf_path)
@@ -16,7 +17,7 @@ def pdf_to_png(pdf_path):
         page = doc.load_page(page_num)
         pix = page.get_pixmap(dpi=300)
         img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
-        images.append(img)
+        images.append((page_num,img))
         print(page_num)
     return images
 
@@ -77,15 +78,32 @@ def process_images(images,save_answer,save_questions,save_ID,Qu_model,ID_model,d
         for question in predicted_questions:
             row = ([predicted_id, question['page_num'], question['question_number'], question['prediction']])
             rows_to_write.append(row)
-
-
-            
-    # 一次性写入所有行到CSV文件
-    with open(save_csv, 'w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(['ID', 'Page', 'Question', 'Prediction'])
-        writer.writerows(rows_to_write)
     # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    return rows_to_write
+
+
+
+
+# Main function to process multiple PDFs and output a single CSV
+def process_multiple_pdfs(folder_path, save_answer, save_questions, save_ID,Qu_model, ID_model, device, save_csv):
+    initialize_csv(save_csv)  # 初始化CSV文件
+    all_rows_to_write = []
+    # 使用glob模式匹配来找到所有的PDF文件
+    pdf_paths = glob.glob(os.path.join(folder_path, '*.pdf'))
+    for pdf_path in pdf_paths:
+        images = pdf_to_png(pdf_path)
+        rows_to_write = process_images(images, save_answer, save_questions, save_ID, Qu_model, ID_model, device, save_csv)
+        all_rows_to_write.extend(rows_to_write)
+    # 在处理完所有PDF后统一写入CSV
+    with open(save_csv, 'a', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerows(all_rows_to_write)
+
+def initialize_csv(csv_path):
+    with open(csv_path, 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(['ID', 'Page Number', 'Question Number', 'Prediction'])
 
 
 
