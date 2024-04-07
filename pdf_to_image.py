@@ -7,6 +7,7 @@ from mcq_scanner import MCQScanner
 from PIL import Image
 import csv
 from ID_scanner import IDScanner
+import torch
 
 def pdf_to_png(pdf_path):
     doc = fitz.open(pdf_path)
@@ -38,14 +39,12 @@ def convert_and_resize_image(image):
     # 调整图像大小
     return cv2.resize(open_cv_image, dim, interpolation=cv2.INTER_AREA)
 
+# 111111111111111111111111111111111111111111111111111111111111111111111111
 def process_images(images,save_answer,save_questions,save_ID,Qu_model,ID_model,device,save_csv):
-    # 写入csv文件
-    # with open(save_csv, 'w', newline='') as file:
-    #     writer = csv.writer(file)
-    #     # 写入CSV表头
-    #     writer.writerow(['ID', 'Page', 'Question Number', 'Row', 'Column', 'Prediction', 'Feedback'])
     rows_to_write = []
-# def process_images(images):
+# 111111111111111111111111111111111111111111111111111111111111111111111111
+
+# def process_images(images,save_answer,save_questions,Qu_model, device, save_csv):
     # processed_images = []
     for page_num, img in images:
         resized_image = convert_and_resize_image(img)
@@ -53,11 +52,11 @@ def process_images(images,save_answer,save_questions,save_ID,Qu_model,ID_model,d
         # 裁剪答题卡，获得答题区域和ID区域
         answer_area, id_area = deskew(resized_image)
         answer_area = cv2.resize(answer_area, (1119, 1193))
-
+# 1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
         # 将ID裁剪输入进去
         scanner_ID = IDScanner(id_area, ID_model, device, save_ID)
         predicted_id=scanner_ID.split_id(page_num)
-    
+# 1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111  
         # 保存处理后的图像
         save_path_Answer = save_answer
         file_name_Answer = f"Answer_Page_{page_num + 1}.png"
@@ -73,7 +72,7 @@ def process_images(images,save_answer,save_questions,save_ID,Qu_model,ID_model,d
         predicted_questions=scanner_questions.crop_and_save_questions(start_x, start_y, question_width, question_height, h_space, v_space, rows,
                                         columns, save_path_Questions,page_num)
         
-
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         # 对于这一页的每个问题，写入它们的信息到CSV文件
         for question in predicted_questions:
             row = ([predicted_id, question['page_num'], question['question_number'], question['prediction']])
@@ -86,13 +85,18 @@ def process_images(images,save_answer,save_questions,save_ID,Qu_model,ID_model,d
         writer = csv.writer(file)
         writer.writerow(['ID', 'Page', 'Question', 'Prediction'])
         writer.writerows(rows_to_write)
-
+    # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
 
 
 
 # if __name__ == "__main__":
-#     images = pdf_to_png('ID_pdf/id_test.pdf')
-#     process_images(enumerate(images))
+#     images = pdf_to_png('PDF_Document/test_data.pdf')
+#     save_answer = 'Answer_area_3/Test'
+#     save_questions = 'test_data_3/C'
+#     Qu_model = ' '
+#     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+#     save_csv = ' '
+#     process_images(enumerate(images),save_answer=save_answer,save_questions=save_questions,Qu_model=Qu_model,device=device,save_csv=save_csv)
 

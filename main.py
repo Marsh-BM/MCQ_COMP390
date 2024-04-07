@@ -48,6 +48,9 @@ def compare_answers(standard_csv_path, prediction_csv_path, output_csv_path):
             if prediction == correct:
                 student_scores[student_id]['Parts'][part] += weight
                 student_scores[student_id]['Total Score'] += weight
+            else:
+                # 如果答案错误，打印学生ID，题号和正确答案
+                print(f"Student ID: {student_id}, Question Number: {question_number}, Correct Answer: {correct}")
 
     # 将结果写入新的CSV文件
     with open(output_csv_path, 'w', newline='') as file:

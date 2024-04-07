@@ -17,8 +17,8 @@ import os
 os.environ['KMP_DUPLICATE_LIB_OK']='TRUE'
 
 # 环境配置和全局变量
-dataset_path = 'train_data_2'
-test_data_path = 'test_data_2'
+dataset_path = 'train_data_3'
+test_data_path = 'test_data_3'
 # dataset_path = 'ID_train'
 # test_data_path = 'ID_test'
 torch.manual_seed(0)  # 确保可复现性
@@ -190,7 +190,7 @@ def main_train(model_filename):
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.0005)
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10, gamma=0.1)
-    num_epochs = 25
+    num_epochs = 45
     
     # 训练数据
     train_model(model, num_epochs, train_loader, criterion, optimizer, scheduler, device, model_path=model_filename)
@@ -208,7 +208,7 @@ def main_train(model_filename):
 
 
 if __name__ == "__main__":
-    model_filename = 'bz8_lr0.0005_ep25_2'  # 模型文件名
+    model_filename = 'bz8_lr0.0005_ep45_3'  # 模型文件名
     # model_filename = 'ID_lr0.0005_ep10'
     main_train(model_filename)
     # main_notrain(model_filename)
