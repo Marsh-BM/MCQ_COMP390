@@ -1,0 +1,112 @@
+body, html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Arial', sans-serif;
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    background-color: #2a90fd;
+    padding: 1em;
+    text-align: left;
+    
+    height: 35px;
+}
+
+#experience-btn {
+    padding: 0.5em 1em;
+    font-size: 1em;
+    cursor: pointer;
+}
+
+.content {
+    display: flex;
+    flex-direction: row; /* Ensures that the children of main-content will be in a row */
+    flex: 1; /* Takes up all available space after accounting for header/footer etc. */
+    /* padding: 1em; */
+}
+
+.left-section, .right-section {
+    flex-basis: 50%; /* Each section takes up half the width of their container */
+}
+
+.left-section {
+    padding-right: 0.5em; /* Padding for spacing between sections */
+    background-color: #f5f5f5;
+}
+
+.right-section {
+    padding-left: 0.5em; /* Padding for spacing between sections */
+    background-color: #dadadb;
+}
+
+h2 {
+    font-size: 1.2em;
+    margin-bottom: 0.5em;
+}
+
+.upload-btn, .delete-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    margin: 10px 5px 10px 30px;
+    /* margin-left: 10px; */
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    font-size: 1em;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+.upload-btn:hover, .delete-btn:hover {
+    background-color: #003e80;
+    transform: scale(1.05);
+}
+
+.delete-btn {
+    background-color: #dc3545;
+    
+}
+
+.delete-btn:hover {
+    background-color: #70000b;
+    transform: scale(1.05);
+}
+
+#pdf-list, #csv-preview {
+    border: 1px solid #ccc;
+    padding: 1em;
+    min-height: 650px; /* Minimum height for visual consistency */
+    background-color: #c8c8c8;
+    margin-left: 10px;
+    margin-right: 20px;
+    margin-top: 10px;
+    border-radius:50px
+    
+}
+#csv-preview{
+    border: 1px solid #ccc;
+    padding: 1em;
+    min-height: 650px; /* Minimum height for visual consistency */
+    background-color: #f4f4f4;
+    margin-left: 10px;
+    margin-right: 20px;
+    margin-top: 10px;
+    border-radius:50px
+}
+
+
+/* Ensure proper wrapping on smaller screens */
+@media (max-width: 768px) {
+    .main-content {
+        flex-direction: column;
+    }
+    .left-section, .right-section {
+        flex-basis: auto;
+    }
+}

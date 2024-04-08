@@ -1,4 +1,49 @@
 <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCQ Scanner</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles_1.css') }}">
+</head>
+<body>
+
+    <div class="header">
+        <div class="experience-loader-container">
+            <button id="experience-btn" class="experience-btn">Experience Now</button>
+            <!-- <div class="loader" id="loader"></div> -->
+        </div>
+        
+    </div>
+
+    <div class="content">
+        <form id="file-upload-pdf" action="/upload_pdf/" method="post" enctype="multipart/form-data">
+            <div class="left-section">
+                <label for="pdf-upload" class="upload-btn">Upload PDFs</label>
+                <input type="file" id="pdf-upload" multiple accept="application/pdf" hidden>
+                <button id="delete-pdf" class="delete-btn">Delete PDFs</button>
+                <div id="pdf-list">
+                    <!-- Uploaded PDF names will be listed here -->
+                </div>
+            </div>
+        </form>
+        
+        <div class="right-section">
+            <label for="csv-upload" class="upload-btn">Upload CSV</label>
+            <input type="file" id="csv-upload" accept=".csv" hidden>
+            <button id="delete-csv" class="delete-btn">Delete CSVs</button>
+            <div id="csv-preview">
+                <!-- Uploaded CSV content will be shown here -->
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='script_1.js') }}"></script>
+</body>
+</html>
+
+
+
+<!-- <!DOCTYPE html>
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
@@ -9,7 +54,7 @@
 <body>
 
     <div class="header">
-        <div class="logo"></div> <!-- Logo placeholder -->
+        <div class="logo"></div> 
         <a href="#" onclick="event.preventDefault();">Home</a>
         <a href="blank.html">Online Recognition</a>
     </div>
@@ -17,18 +62,17 @@
     <div class="content">
         <form id="file-upload-pdf" action="/upload_pdf/" method="post" enctype="multipart/form-data">
             <div class="left-part">
-                <!-- PDF file upload section -->
                 <input type="file" name="pdf-file" id="pdf-file-input" accept=".pdf" multiple hidden onchange="previewPDF(event)">
                 <label for="pdf-file-input" class="document-button">Upload PDF</label>
                 <button type="button" id="update-pdf" class="update-btn">Update PDF</button>
-                <div id="pdf-file-names" class="pdf-upload"></div> <!-- 用于显示文件名 -->
-                <embed id="pdf-preview" type="application/pdf"></embed> <!-- 保留用于实际PDF预览 -->
+                <div id="pdf-file-names" class="pdf-upload"></div> 
+                <embed id="pdf-preview" type="application/pdf"></embed>
             </div>
         </form>
 
         <form id="file-upload-csv" action="/upload_csv/" method="post" enctype="multipart/form-data">
             <div class="right-part">
-                <!-- CSV file upload section -->
+
                 <input type="file" name="csv-file" id="csv-file-input" accept=".csv" hidden onchange="previewCSV(event)">
                 <label for="csv-file-input" class="document-button">Upload CSV</label>
                 <button type="button" id="update-csv" class="update-btn">Update CSV</button>
@@ -40,11 +84,10 @@
     <div class="bottom-part">
         <div class="experience-loader-container">
             <button type="button" id="experience-btn" class="experience-btn">Experience Now</button>
-            <div class="loader" id="loader"></div> <!-- Loading animation -->
+            <div class="loader" id="loader"></div>
         </div>
     </div>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
-</html>
-
+</html> -->
