@@ -3,6 +3,7 @@ from werkzeug.utils import secure_filename
 import os
 from main import run_main_process  # 确保 main.py 在 Flask 应用的搜索路径中
 import shutil
+from flask import jsonify
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -32,6 +33,53 @@ def allowed_file(filename):
 @app.route('/')
 def home():
     return render_template('Home.html')
+
+@app.route('/files/pdf')
+def files_pdf():
+    pdf_folder = app.config['UPLOAD_FOLDER_PDF']
+    try:
+        pdf_files = os.listdir(pdf_folder)
+        pdf_files = [f for f in pdf_files if f.lower().endswith('.pdf')]
+        return jsonify(pdf_files)
+    except Exception as e:
+        return jsonify(error=str(e)), 500
+
+@app.route('/delete_pdf_files', methods=['POST'])
+def delete_pdf_files():
+    try:
+        pdf_folder = app.config['UPLOAD_FOLDER_PDF']
+        for filename in os.listdir(pdf_folder):
+            if filename.lower().endswith('.pdf'):
+                os.unlink(os.path.join(pdf_folder, filename))
+        return jsonify({'message': 'All PDF files have been deleted.'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/delete_csv_files', methods=['POST'])
+def delete_csv_files():
+    try:
+        csv_folder = app.config['UPLOAD_FOLDER_CSV']
+        for filename in os.listdir(csv_folder):
+            if filename.lower().endswith('.csv'):
+                os.unlink(os.path.join(csv_folder, filename))
+        return jsonify({'message': 'All CSV files have been deleted.'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/check_folders')
+def check_folders():
+    pdf_folder = app.config['UPLOAD_FOLDER_PDF']
+    csv_folder = app.config['UPLOAD_FOLDER_CSV']
+    
+    # 检查文件夹是否为空
+    is_pdf_empty = not os.listdir(pdf_folder)
+    is_csv_empty = not os.listdir(csv_folder)
+    
+    # 返回检查结果
+    return jsonify({
+        'is_pdf_empty': is_pdf_empty,
+        'is_csv_empty': is_csv_empty
+    })
 
 
 @app.route('/upload_pdf', methods=['POST'])

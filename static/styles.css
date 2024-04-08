@@ -1,8 +1,9 @@
 body, html {
     height: 100%;
     margin: 0;
+    padding: 0;
     font-family: 'Arial', sans-serif;
-    background: linear-gradient(to bottom, #007bff 33%, #ffffff 67%);
+    background-color: #ffffff;
     display: flex;
     flex-direction: column;
 }
@@ -10,106 +11,85 @@ body, html {
 .header {
     display: flex;
     align-items: center;
-    background-color: #f8f8f8;
-    padding: 10px 20px;
+    background-color: #505050;
+    padding: 10px 10px;
     position: fixed;
     width: 100%;
-    top: 0;
     box-shadow: 0 2px 4px 0 rgba(0,0,0,.1);
     z-index: 1000;
+    height: 35px;
 }
 
-.header a:active {
-    background-color: #b2d1f6;
-    border-bottom: 2px solid #0056b3;
-    color: #fff;
-}
 
-.header a {
-    text-decoration: none;
-    color: #333;
-    font-weight: bold;
-    margin-right: 20px;
-    padding: 5px 10px;
-    border-radius: 5px;
-}
-
-.header a:hover {
-    color: #00008B;
-    background-color: #ADD8E6;
-}
 
 .content {
-    flex-grow: 1; /* Allows content to expand */
+    flex-grow: 1; 
     display: flex;
-    justify-content: space-evenly; /* Evenly distributes content */
-    align-items: flex-start; /* Align items to the top */
-    padding-top: 10px; /* Header height adjustment */
-    width: 100%; /* Set content width to full width of the viewport */
-    margin-top: 60px; /* Space below the header */
+    justify-content: space-evenly;
+    align-items: flex-start; 
+    padding-top: 10px; 
+    width: 100%; 
+    margin-top: 60px; 
     margin-bottom: 20px;
+    min-height: auto;
+
 }
 
 .left-part, .right-part {
     display: flex;
     flex-direction: column;
-    align-items: center; /* Center align the child content */
-    padding: 20px;
-    flex: 1; /* Flex property to share the space */
-    width: calc(50vw/1.1); /* Maximum width is half of the viewport width */
+    align-items: flex-start;
+    justify-content: space-evenly; 
+    padding: 10px;
+    flex: 1; 
+    width: calc(50vw/1.1); 
+    flex-basis: 50%;
+    height: auto;
 }
 
-.pdf-upload, .csv-upload {
-    border: 1px solid #ccc; /* Visible border */
-    width: 100%; /* Full width of the parent container */
-    height: 400px; /* Set a fixed height for the preview area */
-    box-sizing: border-box; /* Border included in width and height */
-    overflow-y: auto; /* Allow vertical scrolling within the preview area */
-    margin-top: 20px; /* Space between the button and the preview area */
-    
+.left-part {
+    padding-right: 0.5em; 
+    background-color: #f5f5f5;
+
 }
 
-#pdf-preview, #csv-preview {
-    border: 1px solid #a09f9f;
-    width: calc(100%); /* Adjust width based on parent padding */
-    height: 400px; /* Consistent height */
-    box-sizing: border-box; /* Include padding and border in width/height */
-    overflow-y: auto; /* Enable scrolling */
+.right-part {
+    padding-left: 0.5em; 
+    background-color: #dadadb;
+}
+
+.button_part {
+    display: flex; /* 使用flex布局使按钮水平排列 */
+    justify-content: start; /* 按钮靠左排列 */
+    width: 100%; /* 容器占满整个宽度 */
+    margin-bottom: 10px; /* 与预览区域的间距 */
+}
+
+#csv-preview {
+    border: 1px solid #000000;
+    margin-right: 10px;
+    width: 100%; 
+    height: 45vw; 
+    box-sizing: border-box; 
+    overflow-y: auto; 
+    border-radius:5px
 }
 
 #pdf-file-names {
-    border: 1px solid #ccc;
-    margin-top: 20px;
+    border: 1px solid #000000;
+    margin-right: 10px;
     width: 100%;
-    height: 200px; /* 或根据需要调整 */
+    height: 45vw; 
     box-sizing: border-box;
     overflow-y: auto;
+    border-radius:5px
 }
 
-.document-button, .update-btn{
-    padding: 10px 20px;
-    font-size: 16px;
-    color: #007bff;
-    background-color: #ffffff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.3s;
-    text-align: center;
-    display: inline-block;
-    text-decoration: none;
-    margin: 0 10px;
-    margin-bottom: 10px;
-}
-
-.experience-btn {
-    height: 50px;
-    width: 300px;
+.document-button{
     padding: 10px 20px;
     font-size: 16px;
     color: #ffffff;
     background-color: #007bff;
-    border: none;
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s, transform 0.3s;
@@ -118,43 +98,67 @@ body, html {
     text-decoration: none;
     margin: 0 10px;
     margin-bottom: 10px;
-    
 }
-
 .document-button:hover, .update-btn:hover, .experience-btn:hover {
     background-color: #0056b3;
     transform: scale(1.05);
 }
-
 .document-button:active, .update-btn:active, .experience-btn:active {
     background-color: #004080;
     transform: scale(0.95);
 }
 
-@media (max-width: 800px) {
-    .left-part, .right-part {
-        flex-basis: 100%; /* Each part takes full width on smaller screens */
-    }
-    .pdf-upload, .csv-upload, #pdf-preview, #csv-preview {
-        height: 300px; /* Adjust the height on smaller screens */
-    }
+
+.delete-btn {
+    padding: 10px 20px;
+    font-size: 16px;
+    color: #ffffff;
+    background-color: #dc3545; 
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+    text-align: center;
+    display: inline-block;
+    text-decoration: none;
+    margin: 0 10px;
+    margin-bottom: 10px;
+    border: none;
 }
 
-.bottom-part {
-    padding: 20px;
-    display: flex;
-    flex-direction: column; /* Stack children vertically */
-    align-items: center; /* Center children horizontally */
-    position: relative; /* Needed for absolute positioning of the loader */
-    width: 100%; /* Full width */
-    height: 100%; /* Minimum height */
+.delete-btn:hover {
+    background-color: #c82333;
+    transform: scale(1.05);
 }
+
+.delete-btn:active {
+    background-color: #bd2130;
+    transform: scale(0.95);
+}
+
+#experience-btn {
+    padding: 0.5em 2em;
+    font-size: 1em;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s, transform 0.3s;
+}
+.experience-btn:active{
+    background-color: #585858;
+    transform: scale(0.95);
+}
+.experience-btn:hover {
+    background-color: #777777;
+    transform: scale(1.05);
+}
+
+
 
 .experience-loader-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 60px; /* Space between the button and the loader */
+    position: relative;
 }
 
 @keyframes spin {
@@ -164,10 +168,11 @@ body, html {
 
 .loader {
     border: 5px solid #f3f3f3; /* Light grey */
-    border-top: 5px solid #3498db; /* Blue */
+    border-top: 5px solid #ccc; /* Blue */
     border-radius: 50%;
-    width: 50px;
-    height: 50px;
+    width: 30px;
+    height: 30px;
     animation: spin 2s linear infinite;
     display: none; /* Loader is hidden by default */
+    margin-left: 60px;
 }

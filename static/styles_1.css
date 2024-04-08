@@ -43,10 +43,7 @@ body, html {
     background-color: #dadadb;
 }
 
-h2 {
-    font-size: 1.2em;
-    margin-bottom: 0.5em;
-}
+
 
 .upload-btn, .delete-btn {
     display: inline-block;
@@ -78,7 +75,7 @@ h2 {
     transform: scale(1.05);
 }
 
-#pdf-list, #csv-preview {
+#pdf-list{
     border: 1px solid #ccc;
     padding: 1em;
     min-height: 650px; /* Minimum height for visual consistency */
@@ -103,7 +100,7 @@ h2 {
 
 /* Ensure proper wrapping on smaller screens */
 @media (max-width: 768px) {
-    .main-content {
+    .content {
         flex-direction: column;
     }
     .left-section, .right-section {
