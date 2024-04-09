@@ -92,12 +92,13 @@ def main(Qu_model_path,ID_model_path,pdf_path,out_path,save_answer,save_question
     
     process_multiple_pdfs(folder_path=pdf_path, save_answer=save_answer,save_questions=save_questions,save_ID=save_ID,
                           Qu_model=Qu_model,ID_model=id_model,device=device,save_csv=save_csv)
+ 
 
 
 
 
 if __name__ == "__main__":
-    Qu_model_path = 'Question_Model/lr0.0005_ep10'  # 模型文件路径
+    Qu_model_path = '4CN_bz8_lr0.0005_ep45_3'
     ID_model_path = 'ID_Model/ID_lr0.00005_ep30'
     # pdf_path = "PDF_Document/test_3.pdf"
     pdf_path = "PDF_Document/Multiple_PDF_test"
@@ -120,6 +121,7 @@ if __name__ == "__main__":
 
 
 def run_main_process(Qu_model_path, ID_model_path, pdf_path, out_path, save_answer, save_questions, save_ID, save_csv, csv_path, save_result):
+    start_time_main = time.time()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     Qu_model = Questions_model().to(device)
@@ -138,3 +140,5 @@ def run_main_process(Qu_model_path, ID_model_path, pdf_path, out_path, save_answ
     process_multiple_pdfs(folder_path=pdf_path, save_answer=save_answer,save_questions=save_questions,save_ID=save_ID,
                           Qu_model=Qu_model,ID_model=id_model,device=device,save_csv=save_csv)
     compare_answers(csv_path, 'results_txt/ID_Question.csv', save_result)
+    end_time_main = time.time()
+    print(f"main function took {end_time_main - start_time_main} seconds to run.")

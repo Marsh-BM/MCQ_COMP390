@@ -59,9 +59,9 @@ def process_images(images,save_answer,save_questions,save_ID,Qu_model,ID_model,d
         predicted_id=scanner_ID.split_id(page_num)
 # 1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111  
         # 保存处理后的图像
-        save_path_Answer = save_answer
-        file_name_Answer = f"Answer_Page_{page_num + 1}.png"
-        save_image(answer_area, save_path_Answer, file_name_Answer)
+        # save_path_Answer = save_answer
+        # file_name_Answer = f"Answer_Page_{page_num + 1}.png"
+        # save_image(answer_area, save_path_Answer, file_name_Answer)
 
         save_path_Questions = save_questions
         start_x, start_y = 60, 48  # 第一个题目的起始坐标

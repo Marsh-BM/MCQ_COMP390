@@ -13,36 +13,41 @@ class IDScanner:
         self.model = model
         self.device = device
         self.save_dir = save_dir
+        self.idx_to_answer = {0: '0', 1: '1', 2: '2', 3: '3', 4: '4', 5: '5', 6: '6', 7: '7', 8: '8', 9: '9'}
         # if not os.path.exists(save_dir):
         #     os.makedirs(save_dir)
 
-    def preprocess(self, image):
-        """图像预处理以匹配模型的输入要求。"""
-        transform = transforms.Compose([
-            transforms.ToPILImage(),
-            transforms.Resize((184, 30)),
-            transforms.Grayscale(num_output_channels=1),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.485], std=[0.229]),
-        ])
-        return transform(image).unsqueeze(0).to(self.device)  # 增加批次维度，并移动到设备上
+    def preprocess(self, images):
+        """批量图像预处理以匹配模型的输入要求。"""
+        processed_images = []
+        for image in images:
+            transform = transforms.Compose([
+                transforms.ToPILImage(),
+                transforms.Resize((184, 30)),
+                transforms.Grayscale(num_output_channels=1),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=[0.485], std=[0.229]),
+            ])
+            processed_image = transform(image).unsqueeze(0)  # 单个图像处理
+            processed_images.append(processed_image)
+        
+        return torch.cat(processed_images, dim=0)  # 合并所有处理后的图像为一个批次
     
-    def predict_digit(self, question_img):
-        # 定义索引到字母的映射关系
-        # idx_to_answer = {'0_file':0,'1_file': 1, '2_file': 2, '3_file': 3, '4_file':4, '5_file':5, '6_file':6, '7_file':7, '8_file':8, '9_file':9}
-        idx_to_answer = {0: '0', 1: '1', 2: '2', 3: '3', 4: '4', 5: '5', 6: '6', 7: '7', 8: '8', 9: '9'}
-        """使用模型预测单个题目的答案。"""
-        question_img = self.preprocess(question_img)
+    def predict_digits(self, images):
+        """批量使用模型预测多个图像的数字。"""
+        images = self.preprocess(images).to(self.device)  # 预处理整个图像批次
         self.model.eval()  # 设置模型为评估模式
         with torch.no_grad():  # 不计算梯度，加速推理
-            outputs = self.model(question_img)
+            outputs = self.model(images)
             _, predicted = torch.max(outputs, 1)
-            predicted_ID = idx_to_answer[predicted.item()]  # 将预测的索引转换为对应的字母
-        return predicted_ID
+            # 使用类内定义的映射关系将预测的索引转换为对应的数字
+            predicted_digits = [self.idx_to_answer[pred.item()] for pred in predicted]
+        
+        return predicted_digits
 
     def split_id(self, page_num):
-    # def split_id(self):
         image = self.image
+        cropped_images = [] 
         predicted_id = '' 
         # Get the image`s height and width
         height, width = image.shape[:2]
@@ -52,27 +57,31 @@ class IDScanner:
         available_width = width - total_spacing_width
         # Calculate the width of each part
         part_width = available_width // 9
-        # 
+
         output_dir = 'ID_middle'
-        # Ensure output directory exists
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
-        # Split and save each part of the image
+ 
         for i in range(9):
-            # Calculate the start x coordinate for each part
-            # Each part's start point is offset by the (i * part_width) plus (i * 3) for the gaps
             start_x = i * (part_width + 4)
             end_x = start_x + part_width
-            # Crop the image
             cropped_image = self.image[:, start_x:end_x]
+            cropped_images.append(cropped_image)
 
-            predicted_digit = self.predict_digit(cropped_image)
-            predicted_id += predicted_digit
+            # predicted_digit = self.predict_digit(cropped_image)
+            # predicted_id += predicted_digit
 
-            # Save the cropped image
-            output_path = os.path.join(output_dir, f'{page_num}_part_{i+1}.jpg')
-            cv2.imwrite(output_path, cropped_image)
+            # # Save the cropped image
+            # output_path = os.path.join(output_dir, f'{page_num}_part_{i+1}.jpg')
+            # cv2.imwrite(output_path, cropped_image)
+        predicted_ids = self.predict_digits(cropped_images)  # 批量预测
+        
+        # 遍历裁剪后的图像并保存到指定的目录
+        # for i, cropped_image in enumerate(cropped_images):
+        #     output_path = os.path.join(output_dir, f'{page_num}_part_{i+1}.jpg')
+        #     cv2.imwrite(output_path, cropped_image)
 
+        predicted_id = ''.join(predicted_ids)
         print(predicted_id)
         return predicted_id
 
