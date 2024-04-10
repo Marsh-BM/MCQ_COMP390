@@ -1,0 +1,7 @@
+ID: 202439011
+Total Marks: 110
+Part 1: 30
+Part 2: 30
+Part 3: 25
+Part 4: 25
+Wrong Questions: 420-E, 425-E, 430-E, 435-B, 440-B, 587-A, 593-A, 599-B, 605-B, 611-C

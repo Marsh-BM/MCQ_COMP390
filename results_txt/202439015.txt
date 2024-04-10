@@ -1,0 +1,7 @@
+ID: 202439015
+Total Marks: 110
+Part 1: 30
+Part 2: 30
+Part 3: 25
+Part 4: 25
+Wrong Questions: 370-C, 375-D, 380-E, 385-B, 390-C, 527-E, 533-D, 539-C, 545-B, 551-A

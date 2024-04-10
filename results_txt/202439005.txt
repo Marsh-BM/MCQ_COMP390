@@ -1,0 +1,7 @@
+ID: 202439005
+Total Marks: 110
+Part 1: 30
+Part 2: 30
+Part 3: 30
+Part 4: 20
+Wrong Questions: 527-C, 533-E, 539-A, 545-D, 551-C, 587-E, 593-C, 599-D, 605-B, 611-D

@@ -1,0 +1,7 @@
+ID: 202439004
+Total Marks: 110
+Part 1: 25
+Part 2: 25
+Part 3: 30
+Part 4: 30
+Wrong Questions: 120-E, 125-E, 130-E, 135-E, 140-E, 270-E, 275-E, 280-E, 285-E, 290-E

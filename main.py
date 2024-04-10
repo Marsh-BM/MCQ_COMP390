@@ -67,7 +67,42 @@ def compare_answers(standard_csv_path, prediction_csv_path, output_csv_path):
             row += [student_scores[student_id]['Parts'][p] for p in sorted(parts_set)]  # 按顺序添加每个部分的得分
             row.append(student_scores[student_id]['Total Score'])
             writer.writerow(row)
-            
+
+def student_to_txt(csv_file_path, output_dir):
+    with open(csv_file_path, mode='r', encoding='utf-8-sig') as file:
+        reader = csv.DictReader(file)
+        os.makedirs(output_dir, exist_ok=True)  # Ensure the output directory exists
+
+        # Calculate the number of parts
+        headers = reader.fieldnames
+        part_headers = [h for h in headers if h.startswith('Part')]
+
+        for row in reader:
+            student_id = row['ID']
+            student_file_path = os.path.join(output_dir, f"{student_id}.txt")
+
+            with open(student_file_path, 'w', encoding='utf-8') as student_file:
+                student_file.write(f"ID: {student_id}\n")
+                student_file.write(f"Total Marks: {row['Total_Marks']}\n")
+                
+                # Write the scores for each part
+                for part in part_headers:
+                    student_file.write(f"{part}: {row[part]}\n")
+                
+                # Identify and write wrong answers
+                wrong_answers = [f"{i}-{ans.upper()}" for i, ans in enumerate(row['Answer'], start=1) if ans.islower()]
+                wrong_questions = ', '.join(wrong_answers) if wrong_answers else 'None'
+                student_file.write(f"Wrong Questions: {wrong_questions}\n")
+
+
+
+
+
+
+
+
+
+
 
 
 def main(Qu_model_path,ID_model_path,pdf_path,out_path,save_answer,save_questions,save_ID,save_csv):
@@ -113,7 +148,7 @@ if __name__ == "__main__":
 
     main(Qu_model_path,ID_model_path, pdf_path, out_path, save_answer,save_questions,save_ID,save_csv)
     compare_answers('results_txt/Correct_Answer.csv','results_txt/ID_Question.csv','results_txt/Student_Scores.csv')
-
+    student_to_txt('results_txt/Student_Scores.csv','results_txt')
     end_time_main = time.time()
     print(f"main function took {end_time_main - start_time_main} seconds to run.")
 
