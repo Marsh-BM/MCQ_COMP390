@@ -61,8 +61,9 @@ def send_email_with_attachment(smtp_user, smtp_password, student_email, student_
     """
     发送带有成绩报告附件的邮件。
     """
+    smtp_adress = ''
+    smtp_password=''
     smtp_server = "smtp.gmail.com"
-    
     smtp_port = 587
     
     message = MIMEMultipart()
