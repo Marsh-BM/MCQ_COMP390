@@ -62,6 +62,7 @@ def send_email_with_attachment(smtp_user, smtp_password, student_email, student_
     发送带有成绩报告附件的邮件。
     """
     smtp_server = "smtp.gmail.com"
+    
     smtp_port = 587
     
     message = MIMEMultipart()
@@ -84,15 +85,19 @@ def send_email_with_attachment(smtp_user, smtp_password, student_email, student_
         server.login(smtp_user, smtp_password)
         server.send_message(message)
 
-def send_reports_to_students(csv_file_path, txt_files_dir, smtp_user, smtp_password):
+def send_reports_to_students(students_info_csv_path, txt_files_dir, smtp_user, smtp_password):
     """
     对CSV文件中的每个学生发送其成绩报告，包括学生的姓名。
+    根据提供的学生信息CSV文件获取学生的邮箱和姓名。
     """
-    students_info = read_students_info(csv_file_path)
+    students_info = read_students_info(students_info_csv_path)
     for student_id, student_name, student_email in students_info:
         attachment_path = os.path.join(txt_files_dir, f"{student_id}.txt")
         if os.path.exists(attachment_path):
-            # 将学生姓名作为参数传递
             send_email_with_attachment(smtp_user, smtp_password, student_email, student_name, attachment_path)
         else:
             print(f"警告：找不到学号为 {student_id} 的学生的成绩报告文件。")
+
+
+
+smtp_password = 'xbok hbdr fhxp hkyh'
