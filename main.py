@@ -1,4 +1,5 @@
 from pdf_to_image import pdf_to_png, process_images,process_multiple_pdfs
+from SendEmail import student_to_txt
 import os
 import cv2
 import torch
@@ -6,6 +7,14 @@ from Questions_model import Questions_model
 from ID_model import ID_model
 import csv
 import time
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
+
+
+
 
 def compare_answers(standard_csv_path, prediction_csv_path, output_csv_path):
     # 读取标准答案
@@ -38,7 +47,7 @@ def compare_answers(standard_csv_path, prediction_csv_path, output_csv_path):
                 student_answers[student_id] = {'Page': page, 'Answers': {}}
 
             # 记录答案，正确答案大写，错误答案小写，并保留题号，对于None使用'#'
-            student_answers[student_id]['Answers'][question_number] = '#' if prediction == 'None' else (prediction.upper() if prediction == correct else prediction.lower())
+            student_answers[student_id]['Answers'][question_number] = '-' if prediction == 'None' else (prediction.upper() if prediction == correct else prediction.lower())
 
             # 初始化学生分数记录
             if student_id not in student_scores:
@@ -68,43 +77,6 @@ def compare_answers(standard_csv_path, prediction_csv_path, output_csv_path):
             row.append(student_scores[student_id]['Total Score'])
             writer.writerow(row)
 
-def student_to_txt(csv_file_path, output_dir):
-    with open(csv_file_path, mode='r', encoding='utf-8-sig') as file:
-        reader = csv.DictReader(file)
-        os.makedirs(output_dir, exist_ok=True)  # Ensure the output directory exists
-
-        # Calculate the number of parts
-        headers = reader.fieldnames
-        part_headers = [h for h in headers if h.startswith('Part')]
-
-        for row in reader:
-            student_id = row['ID']
-            student_file_path = os.path.join(output_dir, f"{student_id}.txt")
-
-            with open(student_file_path, 'w', encoding='utf-8') as student_file:
-                student_file.write(f"ID: {student_id}\n")
-                student_file.write(f"Total Marks: {row['Total_Marks']}\n")
-                
-                # Write the scores for each part
-                for part in part_headers:
-                    student_file.write(f"{part}: {row[part]}\n")
-                
-                # Identify and write wrong answers
-                wrong_answers = [f"{i}-{ans.upper()}" for i, ans in enumerate(row['Answer'], start=1) if ans.islower()]
-                wrong_questions = ', '.join(wrong_answers) if wrong_answers else 'None'
-                student_file.write(f"Wrong Questions: {wrong_questions}\n")
-
-
-
-
-
-
-
-
-
-
-
-
 def main(Qu_model_path,ID_model_path,pdf_path,out_path,save_answer,save_questions,save_ID,save_csv):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -128,12 +100,8 @@ def main(Qu_model_path,ID_model_path,pdf_path,out_path,save_answer,save_question
     process_multiple_pdfs(folder_path=pdf_path, save_answer=save_answer,save_questions=save_questions,save_ID=save_ID,
                           Qu_model=Qu_model,ID_model=id_model,device=device,save_csv=save_csv)
  
-
-
-
-
 if __name__ == "__main__":
-    Qu_model_path = '4CN_bz8_lr0.0005_ep45_3'
+    Qu_model_path = 'Question_Model/4CN_bz8_lr0.0005_ep45_3'
     ID_model_path = 'ID_Model/ID_lr0.00005_ep30'
     # pdf_path = "PDF_Document/test_3.pdf"
     pdf_path = "PDF_Document/Multiple_PDF_test"
@@ -141,14 +109,18 @@ if __name__ == "__main__":
     save_answer = 'Answer_area/test_new'
     save_questions = 'Validation/test_new'
     save_ID = 'ID_middle'
-    save_csv = 'results_txt/ID_Question.csv'
+
+
+    correct_answer = 'results_txt/Correct_Answer.csv'
+    predict_csv = 'results_txt/ID_Question.csv'
+    result_csv = 'results_txt/Student_Scores.csv'
+    feedback = 'results_txt/Feedback'
 
     # 记录 main 函数的开始时间
     start_time_main = time.time()
-
-    main(Qu_model_path,ID_model_path, pdf_path, out_path, save_answer,save_questions,save_ID,save_csv)
-    compare_answers('results_txt/Correct_Answer.csv','results_txt/ID_Question.csv','results_txt/Student_Scores.csv')
-    student_to_txt('results_txt/Student_Scores.csv','results_txt')
+    main(Qu_model_path,ID_model_path, pdf_path, out_path, save_answer,save_questions,save_ID,predict_csv)
+    compare_answers(correct_answer,predict_csv,result_csv)
+    student_to_txt(result_csv,feedback)
     end_time_main = time.time()
     print(f"main function took {end_time_main - start_time_main} seconds to run.")
 

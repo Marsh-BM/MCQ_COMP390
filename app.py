@@ -146,7 +146,7 @@ def grade():
         # Question_model = 'bz8_lr0.0005_ep40_2'
         # Question_model = 'bz8_lr0.0005_ep25_2'
         # Question_model = 'bz8_lr0.0005_ep45_3'
-        Question_model = '4CN_bz8_lr0.0005_ep45_3'
+        Question_model = 'Question_Model/4CN_bz8_lr0.0005_ep45_3'
         ID_model = 'ID_Model/ID_lr0.00005_ep30'
 
         run_main_process(Question_model, ID_model,
