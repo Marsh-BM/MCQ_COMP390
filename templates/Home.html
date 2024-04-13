@@ -19,7 +19,7 @@
         <form id="file-upload-pdf" action="/upload_pdf/" method="post" enctype="multipart/form-data">
             <div class="left-part">
                 <div class="button_part">
-                    <input type="file" name="pdf-file" id="pdf-file-input" accept=".pdf" multiple hidden onchange="handleFileUpload('pdf', event)">
+                    <input type="file" name="pdf-file" id="pdf-file-input" accept=".pdf" multiple hidden>
                     <label for="pdf-file-input" class="document-button">Upload PDF</label>
                     <button type="button" id="delete-pdf-btn" class="delete-btn">Delete PDF</button>
                 </div>
@@ -28,15 +28,27 @@
         </form>
 
         <form id="file-upload-csv" action="/upload_csv/" method="post" enctype="multipart/form-data">
-            <div class="right-part">
+            <div class="middle-part">
                 <div class="button_part">
-                    <input type="file" name="csv-file" id="csv-file-input" accept=".csv" hidden onchange="handleFileUpload('csv', event)">
+                    <input type="file" name="csv-file" id="csv-file-input" accept=".csv" hidden >
                     <label for="csv-file-input" class="document-button">Upload CSV</label>
                     <button type="button" id="delete-csv-btn" class="delete-btn">Delete CSV</button>
                 </div>
                 <div id="csv-preview" class="placeholder-image"></div>
+            </div> 
+        </form>
+        
+        <form id="file-upload-students" action="/upload_student_csv/" method="post" enctype="multipart/form-data">
+            <div class="right-part">
+                <div class="button_part">
+                    <input type="file" name="student-csv-file" id="student-csv-file-input" accept=".csv" hidden>
+                    <label for="student-csv-file-input" class="document-button">Upload Stu</label>
+                    <button type="button" id="delete-student-csv-btn" class="delete-btn">Delete Stu</button>
+                </div>
+                <div id="student-csv-preview" class="placeholder-image"></div>
             </div>
         </form>
+
     </div>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>

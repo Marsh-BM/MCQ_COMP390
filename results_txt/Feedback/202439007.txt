@@ -1,0 +1,7 @@
+ID: 202439007
+Total Marks: 110
+Part 1: 30
+Part 2: 30
+Part 3: 30
+Part 4: 20
+Wrong Questions: 101-b, 102-d, 103-a, 104-d, 105-c, 106-b, 107-e, 108-a, 109-c, 110-e

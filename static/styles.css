@@ -35,28 +35,24 @@ body, html {
 
 }
 
-.left-part, .right-part {
+.left-part, .middle-part, .right-part {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     justify-content: space-evenly; 
     padding: 10px;
     flex: 1; 
-    width: calc(50vw/1.1); 
+    width: calc(30vw/1.1); 
     flex-basis: 50%;
     height: auto;
 }
 
-.left-part {
+.left-part, .middle-part, .right-part {
     padding-right: 0.5em; 
     background-color: #f5f5f5;
 
 }
 
-.right-part {
-    padding-left: 0.5em; 
-    background-color: #f5f5f5;
-}
 
 .button_part {
     display: flex; /* 使用flex布局使按钮水平排列 */
@@ -85,6 +81,15 @@ body, html {
     border-radius:5px
 }
 
+#student-csv-preview {
+    border: 1px solid #000000;
+    margin-right: 10px;
+    width: 100%;
+    height: 45vw; 
+    box-sizing: border-box;
+    overflow-y: auto;
+    border-radius:5px
+}
 .document-button{
     padding: 10px 20px;
     font-size: 16px;

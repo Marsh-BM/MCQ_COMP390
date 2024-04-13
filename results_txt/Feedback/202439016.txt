@@ -1,7 +1,0 @@
-ID: 202439016
-Total Marks: 100
-Part 1: 25
-Part 2: 20
-Part 3: 25
-Part 4: 30
-Wrong Questions: 21-a, 22-c, 25-c, 36-b, 37-d, 38-a, 39-c, 40-c, 71-c, 72-e, 73-d, 74-d, 75-d

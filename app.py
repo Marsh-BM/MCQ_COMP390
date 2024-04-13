@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, sen
 from werkzeug.utils import secure_filename
 import os
 from main import run_main_process  # 确保 main.py 在 Flask 应用的搜索路径中
+from SendEmail import student_to_txt, send_reports_to_students
 import shutil
 from flask import jsonify
 
@@ -10,6 +11,7 @@ app.secret_key = os.urandom(24)
 
 app.config['UPLOAD_FOLDER_PDF'] = 'uploaded_PDF'
 app.config['UPLOAD_FOLDER_CSV'] = 'uploaded_CSV'
+app.config['UPLOAD_FOLDER_STUDENTS'] = 'uploaded_Students'
 # app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # Limit file size to 16MB
 app.config['ALLOWED_EXTENSIONS'] = {'pdf', 'csv'}
 app.config['RESULT_FOLDER'] = 'results_txt'
@@ -17,12 +19,14 @@ app.config['RESULT_FOLDER'] = 'results_txt'
 # Ensure the upload folder exists
 os.makedirs(app.config['UPLOAD_FOLDER_PDF'], exist_ok=True)
 os.makedirs(app.config['UPLOAD_FOLDER_CSV'], exist_ok=True)
+os.makedirs(app.config['UPLOAD_FOLDER_STUDENTS'], exist_ok=True)
 os.makedirs(app.config['RESULT_FOLDER'], exist_ok=True)  # Ensure the result folder exists
 
 # 存储最近上传的PDF和CSV文件名
 uploaded_files = {
     'pdf': [],
-    'csv': None
+    'csv': None,
+    'student_csv': None  # Add this line to track the student info CSV
 }
 
 # Check if the file extension is allowed
@@ -66,6 +70,17 @@ def delete_csv_files():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/delete_student_csv', methods=['POST'])
+def delete_student_csv():
+    try:
+        csv_folder = app.config['UPLOAD_FOLDER_STUDENTS']
+        for filename in os.listdir(csv_folder):
+            if filename.lower().endswith('.csv'):
+                os.unlink(os.path.join(csv_folder, filename))
+        return jsonify({'message': 'All CSV files have been deleted.'})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/check_folders')
 def check_folders():
     pdf_folder = app.config['UPLOAD_FOLDER_PDF']
@@ -86,43 +101,63 @@ def check_folders():
 def upload_pdf():
     files = request.files.getlist('pdf-file')  # 获取所有上传的PDF文件
     if not files:
-        flash('No file selected.')
-        return redirect(url_for('home'))
+        return jsonify({'error': 'No file selected'}), 400
 
     uploaded_files['pdf'].clear()  # 清除先前的文件列表
 
     for file in files:
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER_PDF'], filename))
-            uploaded_files['pdf'].append(filename)  # 添加文件名到列表
+            file_path = os.path.join(app.config['UPLOAD_FOLDER_PDF'], filename)
+            file.save(file_path)
+            uploaded_files['pdf'].append(file_path)  # 添加文件的完整路径到列表
         else:
-            flash('File type not allowed.')
-            return redirect(request.url)
+            return jsonify({'error': 'File type not allowed'}), 400
 
-    flash('PDF uploaded successfully.')
-    return redirect(url_for('home'))
+    return jsonify({'message': 'PDF uploaded successfully', 'files': uploaded_files['pdf']})
 
 
 
 @app.route('/upload_csv', methods=['POST'])
 def upload_csv():
-    uploaded = False  # Flag to check if any file was uploaded
+    if 'csv-file' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
 
-    if 'csv-file' in request.files:
-        csv_file = request.files['csv-file']
-        if csv_file and allowed_file(csv_file.filename):
-            csv_filename = secure_filename(csv_file.filename)
-            csv_file.save(os.path.join(app.config['UPLOAD_FOLDER_CSV'], csv_filename))
-            uploaded_files['csv'] = csv_filename
-            uploaded = True
+    csv_file = request.files['csv-file']
+    if csv_file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
 
-    if not uploaded:
-        flash('No file selected or file type not allowed.')
-        return redirect(request.url)
+    if csv_file and allowed_file(csv_file.filename):
+        csv_filename = secure_filename(csv_file.filename)
+        csv_file.save(os.path.join(app.config['UPLOAD_FOLDER_CSV'], csv_filename))
+        uploaded_files['csv'] = csv_filename
+        return jsonify({'message': 'CSV uploaded successfully.', 'filename': csv_filename})
+    else:
+        return jsonify({'error': 'File type not allowed'}), 400
+
+
+
+
+@app.route('/upload_student_csv', methods=['POST'])
+def upload_student_csv():
+    if 'student-csv-file' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
     
-    flash('CSV uploaded successfully.')
-    return redirect(url_for('home'))
+    file = request.files['student-csv-file']
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+    
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(app.config['UPLOAD_FOLDER_STUDENTS'], filename)
+        file.save(file_path)
+        uploaded_files['student_csv'] = filename  # Update the file name in the dictionary
+        return jsonify({'message': 'Student CSV uploaded successfully.', 'file_path': file_path})
+    else:
+        return jsonify({'error': 'Invalid file type.'}), 400
+
+
+
 
 @app.route('/grade', methods=['POST'])
 def grade():
@@ -152,6 +187,15 @@ def grade():
         run_main_process(Question_model, ID_model,
                          pdf_paths, out_path, save_answer, save_questions, save_ID, save_csv, csv_path, save_result)
         
+        feedback = 'Feedback'
+        students_path = os.path.join(app.config['UPLOAD_FOLDER_STUDENTS'], uploaded_files['student_csv'])
+        smtp_user = 'marshbm0518@gmail.com' # 你的Gmail邮箱地址
+        smtp_password = 'xbok hbdr fhxp hkyh'
+        student_to_txt(save_result, feedback)
+        send_reports_to_students(save_result, students_path, feedback, smtp_user,smtp_password)
+
+
+        
         # 下载结果
         response = send_from_directory(app.config['RESULT_FOLDER'], 'Student_Scores.csv', as_attachment=True)
         
@@ -159,7 +203,8 @@ def grade():
         try:
             pdf_folder = app.config['UPLOAD_FOLDER_PDF']
             csv_folder = app.config['UPLOAD_FOLDER_CSV']
-
+            student_folder = app.config['UPLOAD_FOLDER_STUDENTS']
+            feedback = 'Feedback'
             # 删除PDF目录下的所有文件
             for filename in os.listdir(pdf_folder):
                 file_path = os.path.join(pdf_folder, filename)
@@ -171,6 +216,22 @@ def grade():
             # 删除CSV目录下的所有文件
             for filename in os.listdir(csv_folder):
                 file_path = os.path.join(csv_folder, filename)
+                if os.path.isfile(file_path) or os.path.islink(file_path):
+                    os.unlink(file_path)
+                elif os.path.isdir(file_path):
+                    shutil.rmtree(file_path)
+
+            # 删除Students CSV目录下的所有文件
+            for filename in os.listdir(student_folder):
+                file_path = os.path.join(student_folder, filename)
+                if os.path.isfile(file_path) or os.path.islink(file_path):
+                    os.unlink(file_path)
+                elif os.path.isdir(file_path):
+                    shutil.rmtree(file_path)
+
+            # 删除Feedback目录下的所有文件
+            for filename in os.listdir(feedback):
+                file_path = os.path.join(feedback, filename)
                 if os.path.isfile(file_path) or os.path.islink(file_path):
                     os.unlink(file_path)
                 elif os.path.isdir(file_path):

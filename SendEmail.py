@@ -1,17 +1,11 @@
-from pdf_to_image import pdf_to_png, process_images,process_multiple_pdfs
 import os
-import cv2
-import torch
-from Questions_model import Questions_model
-from ID_model import ID_model
 import csv
-import time
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
-
+from password_user import return_user,return_password
 
 def student_to_txt(csv_file_path, output_dir):
     with open(csv_file_path, mode='r', encoding='utf-8-sig') as file:
@@ -36,8 +30,6 @@ def student_to_txt(csv_file_path, output_dir):
                 
         
                 # 将答案字符串拆分为独立的答案项
-                answers = row['Answer'].split()
-
                 answers = row['Answer'].split()  # Splitting the answers by space
                 wrong_answers = [ans for ans in answers if any(char.islower() for char in ans)]
                 # Format the wrong answers with their question numbers
@@ -61,8 +53,8 @@ def send_email_with_attachment(smtp_user, smtp_password, student_email, student_
     """
     发送带有成绩报告附件的邮件。
     """
-    smtp_adress = ''
-    smtp_password=''
+    # smtp_adress = ''
+    # smtp_password=''
     smtp_server = "smtp.gmail.com"
     smtp_port = 587
     
@@ -86,7 +78,7 @@ def send_email_with_attachment(smtp_user, smtp_password, student_email, student_
         server.login(smtp_user, smtp_password)
         server.send_message(message)
 
-def send_reports_to_students(students_info_csv_path, txt_files_dir, smtp_user, smtp_password):
+def send_reports_to_students(grades_csv_path,students_info_csv_path, txt_files_dir, smtp_user, smtp_password):
     """
     对CSV文件中的每个学生发送其成绩报告，包括学生的姓名。
     根据提供的学生信息CSV文件获取学生的邮箱和姓名。
@@ -97,8 +89,21 @@ def send_reports_to_students(students_info_csv_path, txt_files_dir, smtp_user, s
         if os.path.exists(attachment_path):
             send_email_with_attachment(smtp_user, smtp_password, student_email, student_name, attachment_path)
         else:
-            print(f"警告：找不到学号为 {student_id} 的学生的成绩报告文件。")
+            print(f"Warning: Cannot find the ID:{student_id} scores report。")
 
 
 
-smtp_password = 'xbok hbdr fhxp hkyh'
+
+
+if __name__ == "__main__":
+    grades_csv_path = 'results_txt\Student_Scores.csv' # 成绩CSV文件的路径
+    students_info_csv_path = 'results_txt\Information of students.csv' # 学生信息CSV文件的路径
+    output_dir = 'results_txt\Feedback' # 存放生成文本文件的目录
+    smtp_user = 'marshbm0518@gmail.com' # 你的Gmail邮箱地址
+    smtp_password = 'xbok hbdr fhxp hkyh'
+
+    # 首先，生成每个学生的成绩报告文本文件
+    student_to_txt(grades_csv_path, output_dir)
+
+    # 然后，发送成绩报告给每位学生
+    send_reports_to_students(grades_csv_path, students_info_csv_path, output_dir, smtp_user, smtp_password)

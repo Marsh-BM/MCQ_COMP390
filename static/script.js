@@ -1,4 +1,3 @@
-
 // 当 PDF 文件选择后的处理函数
 function handlePDFUpload(event) {
     var files = event.target.files; // 获取选中的文件列表
@@ -28,14 +27,12 @@ function handlePDFUpload(event) {
         displayUploadedFiles();
     })
     .catch(error => {
-        displayUploadedFiles();
         console.error('Error uploading PDF:', error);
     });
 
     // 显示文件名
     
 }
-
 
 // 当 CSV 文件选择后的处理函数
 function handleCSVUpload(event) {
@@ -67,6 +64,37 @@ function handleCSVUpload(event) {
         console.error('Error uploading CSV:', error);
     });
 }
+
+// Function to handle student CSV file upload
+function handleStudentCSVUpload(event) {
+    // console.log("handleStudentCSVUpload called");
+    var file = event.target.files[0]; // Get the selected file
+    if (!file) return; // If no file was selected, return immediately
+
+    // Ask for confirmation before uploading the file
+    if (!confirm("Do you want to submit this student information Students CSV file?")) {
+        return; // If the user cancels, do nothing
+    }
+
+    // Prepare the form data for uploading
+    var formData = new FormData();
+    formData.append('student-csv-file', file); // Make sure the 'name' attribute in your HTML matches this
+
+    // Use the fetch API to send the student CSV file to the server
+    fetch('/upload_student_csv', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Student CSV Upload Success:', data);
+        previewStudentsCSV(event)
+    })
+    .catch(error => {
+        console.error('Error uploading student CSV:', error);
+    });
+}
+
 
 
 // 用于显示上传的文件列表
@@ -107,6 +135,21 @@ function previewCSV(event) {
     reader.onload = function(e) {
         var csvContent = e.target.result;
         var previewContainer = document.getElementById('csv-preview');
+        previewContainer.innerHTML = csvToTable(csvContent);
+        previewContainer.style.display = 'block';
+    };
+    reader.readAsText(file);
+}
+
+// 显示Students CSV文件内容的预览
+function previewStudentsCSV(event) {
+    var file = event.target.files[0]; // 获取选中的CSV文件
+    if (!file) return;
+
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        var csvContent = e.target.result;
+        var previewContainer = document.getElementById('student-csv-preview');
         previewContainer.innerHTML = csvToTable(csvContent);
         previewContainer.style.display = 'block';
     };
@@ -167,7 +210,24 @@ function deleteCSVFiles() {
     });
 }
 
+function deleteStudentCSV() {
+    // if (!confirm('Are you sure you want to delete all CSV files?')) return;
 
+    fetch('/delete_student_csv', { method: 'POST' })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Delete Students CSV files success:', data);
+        document.getElementById('student-csv-preview').innerHTML = '';
+    })
+    .catch(error => {
+        console.error('Error deleting Students CSV files:', error);
+    });
+}
 
 // 初始化函数，用于设置事件监听器
 function initialize() {
@@ -181,13 +241,12 @@ function initialize() {
         csvFileInput.addEventListener('change', handleCSVUpload);
     }
 
-    var csvFileInput = document.getElementById('csv-file-input');
-    if (csvFileInput) {
-        csvFileInput.addEventListener('change', function(event) {
-            // 这里假设用户已经通过确认对话框同意上传
-            previewCSV(event); // 显示CSV内容预览
-        });
+    var studentCsvFileInput = document.getElementById('student-csv-file-input'); 
+    if (studentCsvFileInput) {
+        studentCsvFileInput.addEventListener('change', handleStudentCSVUpload);
     }
+
+
     var pdfdelete = document.getElementById('delete-pdf-btn')
     if(pdfdelete){
         pdfdelete.addEventListener('click', function(event){
@@ -202,7 +261,15 @@ function initialize() {
             if (confirm('Are you sure you want to delete all CSV files?')) {
                 deleteCSVFiles();
             }
-        })
+        });
+    }
+    var deleteStudentCsvBtn = document.getElementById('delete-student-csv-btn');
+    if (deleteStudentCsvBtn) {
+        deleteStudentCsvBtn.addEventListener('click', function(event) {
+            if (confirm('Are you sure you want to delete the student CSV file?')) {
+                deleteStudentCSV();
+            }
+        });
     }
 }
 

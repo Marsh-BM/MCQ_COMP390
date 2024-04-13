@@ -1,0 +1,7 @@
+ID: 202439012
+Total Marks: 110
+Part 1: 25
+Part 2: 25
+Part 3: 30
+Part 4: 30
+Wrong Questions: 1-d, 2-d, 3-d, 4-d, 5-d, 31-e, 32-e, 33-e, 34-e, 35-e
