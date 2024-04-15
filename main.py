@@ -1,19 +1,29 @@
-from pdf_to_image import pdf_to_png, process_images,process_multiple_pdfs
-from SendEmail import student_to_txt
+from pdf_to_image import process_multiple_pdfs
 import os
-import cv2
 import torch
 from Questions_model import Questions_model
 from ID_model import ID_model
 import csv
 import time
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from email.mime.base import MIMEBase
-from email import encoders
+import pandas as pd
 
-
+def convert_csv_format(input_csv_path, output_csv_path):
+    # 读取原始 CSV 文件
+    df = pd.read_csv(input_csv_path)
+    
+    # 选择必要的列并重命名（如果需要的话）
+    new_df = df[['Page Number', 'Question Number', 'Prediction']]
+    
+    # 由于你的新 CSV 文件格式还需要 Row 和 Column 等列，我们可以添加这些列并为它们设置默认值
+    new_df['Part'] = 'Part 1'  # 假设所有问题都属于 Part 1
+    new_df['Weight'] = 1  # 假设所有问题的权重都是 1
+    
+    # 重命名列以符合目标 CSV 的格式要求
+    new_df.rename(columns={'Page Number': 'Page', 'Question Number': 'Question'}, inplace=True)
+    
+    # 保存转换后的数据到新的 CSV 文件
+    new_df.to_csv(output_csv_path, index=False)
+    print(f"Converted CSV saved to {output_csv_path}")
 
 
 def compare_answers(standard_csv_path, prediction_csv_path, output_csv_path):
@@ -24,7 +34,7 @@ def compare_answers(standard_csv_path, prediction_csv_path, output_csv_path):
         reader = csv.reader(file)
         next(reader)  # 跳过标题行
         for row in reader:
-            question_number, answer, part, weight = int(row[1]), row[4], row[5], int(row[6])
+            question_number, answer, part, weight = int(row[1]), row[2], row[3], int(row[4])
             standard_answers[question_number] = {'answer': answer, 'part': part, 'weight': weight}
             parts_set.add(part)  # 添加部分到集合中
 
@@ -77,7 +87,8 @@ def compare_answers(standard_csv_path, prediction_csv_path, output_csv_path):
             row.append(student_scores[student_id]['Total Score'])
             writer.writerow(row)
 
-def main(Qu_model_path,ID_model_path,pdf_path,out_path,save_answer,save_questions,save_ID,save_csv):
+def main(Qu_model_path,ID_model_path,pdf_path,out_path,save_answer,save_questions,predict_csv):
+    print("Calling main function to process the PDF...hisadhiawdhiwa")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
@@ -97,37 +108,11 @@ def main(Qu_model_path,ID_model_path,pdf_path,out_path,save_answer,save_question
     # images = pdf_to_png(pdf_path)
     # process_images(enumerate(images),save_answer,save_questions,save_ID,Qu_model,id_model,device,save_csv)
     
-    process_multiple_pdfs(folder_path=pdf_path, save_answer=save_answer,save_questions=save_questions,save_ID=save_ID,
-                          Qu_model=Qu_model,ID_model=id_model,device=device,save_csv=save_csv)
+    process_multiple_pdfs(folder_path=pdf_path, save_answer=save_answer,save_questions=save_questions,
+                          Qu_model=Qu_model,ID_model=id_model,device=device,predict_csv=predict_csv)
  
-if __name__ == "__main__":
-    Qu_model_path = 'Question_Model/4CN_bz8_lr0.0005_ep45_3'
-    ID_model_path = 'ID_Model/ID_lr0.00005_ep30'
-    # pdf_path = "PDF_Document/test_3.pdf"
-    pdf_path = "PDF_Document/Multiple_PDF_test"
-    out_path = "JPG_Document/TruthData"
-    save_answer = 'Answer_area/test_new'
-    save_questions = 'Validation/test_new'
-    save_ID = 'ID_middle'
 
-
-    correct_answer = 'results_txt/Correct_Answer.csv'
-    predict_csv = 'results_txt/ID_Question.csv'
-    result_csv = 'results_txt/Student_Scores.csv'
-    feedback = 'results_txt/Feedback'
-
-    # 记录 main 函数的开始时间
-    start_time_main = time.time()
-    main(Qu_model_path,ID_model_path, pdf_path, out_path, save_answer,save_questions,save_ID,predict_csv)
-    compare_answers(correct_answer,predict_csv,result_csv)
-    student_to_txt(result_csv,feedback)
-    end_time_main = time.time()
-    print(f"main function took {end_time_main - start_time_main} seconds to run.")
-
-
-
-
-def run_main_process(Qu_model_path, ID_model_path, pdf_path, out_path, save_answer, save_questions, save_ID, save_csv, csv_path, save_result):
+def run_main_process(Qu_model_path, ID_model_path, pdf_path, out_path, save_answer, save_questions, predict_csv, csv_path, save_result):
     start_time_main = time.time()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -144,8 +129,42 @@ def run_main_process(Qu_model_path, ID_model_path, pdf_path, out_path, save_answ
 
     # images = pdf_to_png(pdf_path)
     # process_images(enumerate(images), save_answer, save_questions, save_ID, Qu_model, id_model, device, save_csv)
-    process_multiple_pdfs(folder_path=pdf_path, save_answer=save_answer,save_questions=save_questions,save_ID=save_ID,
-                          Qu_model=Qu_model,ID_model=id_model,device=device,save_csv=save_csv)
-    compare_answers(csv_path, 'results_txt/ID_Question.csv', save_result)
+    process_multiple_pdfs(folder_path=pdf_path, save_answer=save_answer,save_questions=save_questions,
+                          Qu_model=Qu_model,ID_model=id_model,device=device,predict_csv=predict_csv)
+    compare_answers(csv_path, predict_csv, save_result)
     end_time_main = time.time()
     print(f"main function took {end_time_main - start_time_main} seconds to run.")
+
+
+
+
+
+
+if __name__ == "__main__":
+    Qu_model_path = 'Question_Model/4CN_bz8_lr0.0005_ep45_3'
+    ID_model_path = 'ID_Model/ID_lr0.00005_ep30'
+    # pdf_path = "PDF_Document/test_3.pdf"
+    pdf_path = "PDF_Document/Multiple_PDF_test"
+    out_path = "JPG_Document/TruthData"
+    save_answer = 'Answer_area/test_new'
+    save_questions = 'Validation/test_new'
+    # save_ID = 'ID_middle' ID的中间值的保存
+
+
+    correct_answer = 'results_txt/Correct_Answer.csv'
+    predict_csv = 'results_txt/PDF_Answer.csv'
+    result_csv = 'results_txt/Student_Scores.csv'
+    feedback = 'results_txt/Feedback'
+
+    # 记录 main 函数的开始时间
+    main(Qu_model_path,ID_model_path, pdf_path, out_path, save_answer,save_questions,predict_csv)
+    convert_csv_format(predict_csv, correct_answer)
+    # compare_answers(correct_answer,predict_csv,result_csv)
+    # run_main_process(Qu_model_path, ID_model_path,
+    #                      pdf_path, out_path, save_answer, save_questions, predict_csv, correct_answer, result_csv)
+    # student_to_txt(result_csv,feedback)
+
+
+
+
+

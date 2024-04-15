@@ -49,16 +49,23 @@ function handleCSVUpload(event) {
 
     // 准备表单数据并上传
     var formData = new FormData();
-    formData.append('csv-file', file);
+    formData.append('file', file);
 
-    fetch('/upload_csv', {
+    fetch('/upload_ans', {
         method: 'POST',
         body: formData
     })
     .then(response => response.json())
     .then(data => {
-        console.log('CSV Upload Success:', data);
-        previewCSV(event); // 显示CSV内容预览
+        console.log('Answer Upload Success:', data);
+        if(file.type === 'text/csv'){
+            previewCSV(event); // 显示CSV内容预览
+            document.getElementById('pdf-preview').style.display = 'none'; // 隐藏 PDF 预览
+        }else if (file.type === 'application/pdf'){
+            previewPDF(file)
+            document.getElementById('csv-preview').style.display = 'none';
+        }
+        
     })
     .catch(error => {
         console.error('Error uploading CSV:', error);
@@ -141,6 +148,14 @@ function previewCSV(event) {
     reader.readAsText(file);
 }
 
+// 显示PDF文件内容的预览
+function previewPDF(file) {
+    var url = URL.createObjectURL(file); // 创建一个指向该文件的 URL
+    var pdfPreview = document.getElementById('pdf-preview');
+    pdfPreview.src = url;
+    pdfPreview.style.display = 'block'; // 显示预览
+}
+
 // 显示Students CSV文件内容的预览
 function previewStudentsCSV(event) {
     var file = event.target.files[0]; // 获取选中的CSV文件
@@ -191,10 +206,10 @@ function deletePDFFiles() {
     });
 }
 
-function deleteCSVFiles() {
+function deleteAnswerFiles() {
     // if (!confirm('Are you sure you want to delete all CSV files?')) return;
 
-    fetch('/delete_csv_files', { method: 'POST' })
+    fetch('/delete_ans_files', { method: 'POST' })
     .then(response => {
         if (!response.ok) {
             throw new Error('Network response was not ok');
@@ -204,6 +219,8 @@ function deleteCSVFiles() {
     .then(data => {
         console.log('Delete CSV files success:', data);
         document.getElementById('csv-preview').innerHTML = '';
+        document.getElementById('pdf-preview').style.display = 'none';
+        document.getElementById('csv-preview').style.display = 'block';
     })
     .catch(error => {
         console.error('Error deleting CSV files:', error);
@@ -236,7 +253,7 @@ function initialize() {
         pdfFileInput.addEventListener('change', handlePDFUpload);
     }
     
-    var csvFileInput = document.getElementById('csv-file-input');
+    var csvFileInput = document.getElementById('ans-file-input');
     if (csvFileInput) {
         csvFileInput.addEventListener('change', handleCSVUpload);
     }
@@ -259,7 +276,7 @@ function initialize() {
     if(csvdelete){
         csvdelete.addEventListener('click',function(event){
             if (confirm('Are you sure you want to delete all CSV files?')) {
-                deleteCSVFiles();
+                deleteAnswerFiles();
             }
         });
     }

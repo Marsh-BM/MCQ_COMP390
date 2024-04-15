@@ -7,12 +7,11 @@ import csv
 
 
 class IDScanner:
-    def __init__(self, image, model, device, save_dir):
+    def __init__(self, image, model, device):
     # def __init__(self, image, model, device):
         self.image = image # ID_
         self.model = model
         self.device = device
-        self.save_dir = save_dir
         self.idx_to_answer = {0: '0', 1: '1', 2: '2', 3: '3', 4: '4', 5: '5', 6: '6', 7: '7', 8: '8', 9: '9'}
         # if not os.path.exists(save_dir):
         #     os.makedirs(save_dir)

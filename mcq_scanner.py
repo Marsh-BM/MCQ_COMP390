@@ -76,11 +76,10 @@ import csv
 #         return results
 
 class MCQScanner:
-    def __init__(self, image, model, device, save_dir):
+    def __init__(self, image, model, device):
         self.image = image
         self.model = model
         self.device = device
-        self.save_dir = save_dir
         self.idx_to_answer = {0: 'A', 1: 'B', 2: 'C', 3: 'D', 4: 'E', 5: 'None'}
 
     def preprocess(self, images):

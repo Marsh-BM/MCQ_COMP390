@@ -41,7 +41,7 @@ def convert_and_resize_image(image):
     return cv2.resize(open_cv_image, dim, interpolation=cv2.INTER_AREA)
 
 # 111111111111111111111111111111111111111111111111111111111111111111111111
-def process_images(images,save_answer,save_questions,save_ID,Qu_model,ID_model,device,save_csv):
+def process_images(images,save_answer,save_questions,Qu_model,ID_model,device):
     rows_to_write = []
 # 111111111111111111111111111111111111111111111111111111111111111111111111
 
@@ -55,7 +55,7 @@ def process_images(images,save_answer,save_questions,save_ID,Qu_model,ID_model,d
         answer_area = cv2.resize(answer_area, (1119, 1193))
 # 1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
         # 将ID裁剪输入进去
-        scanner_ID = IDScanner(id_area, ID_model, device, save_ID)
+        scanner_ID = IDScanner(id_area, ID_model, device)
         predicted_id=scanner_ID.split_id(page_num)
 # 1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111  
         # 保存处理后的图像
@@ -69,7 +69,7 @@ def process_images(images,save_answer,save_questions,save_ID,Qu_model,ID_model,d
         h_space, v_space = 297, 44  # 题目之间的水平和垂直间距
         rows, columns = 30, 4  # 答题卡上题目的行数和列数
 
-        scanner_questions = MCQScanner(answer_area,Qu_model,device,save_csv)
+        scanner_questions = MCQScanner(answer_area,Qu_model,device)
         predicted_questions=scanner_questions.crop_and_save_questions(start_x, start_y, question_width, question_height, h_space, v_space, rows,
                                         columns, save_path_Questions,page_num)
         
@@ -86,19 +86,20 @@ def process_images(images,save_answer,save_questions,save_ID,Qu_model,ID_model,d
 
 
 # Main function to process multiple PDFs and output a single CSV
-def process_multiple_pdfs(folder_path, save_answer, save_questions, save_ID,Qu_model, ID_model, device, save_csv):
-    initialize_csv(save_csv)  # 初始化CSV文件
+def process_multiple_pdfs(folder_path, save_answer, save_questions,Qu_model, ID_model, device, predict_csv):
+    initialize_csv(predict_csv)  # 初始化CSV文件
     all_rows_to_write = []
     # 使用glob模式匹配来找到所有的PDF文件
     pdf_paths = glob.glob(os.path.join(folder_path, '*.pdf'))
     for pdf_path in pdf_paths:
         images = pdf_to_png(pdf_path)
-        rows_to_write = process_images(images, save_answer, save_questions, save_ID, Qu_model, ID_model, device, save_csv)
+        rows_to_write = process_images(images, save_answer, save_questions, Qu_model, ID_model, device)
         all_rows_to_write.extend(rows_to_write)
     # 在处理完所有PDF后统一写入CSV
-    with open(save_csv, 'a', newline='') as file:
+    with open(predict_csv, 'a', newline='') as file:
         writer = csv.writer(file)
         writer.writerows(all_rows_to_write)
+    
 
 def initialize_csv(csv_path):
     with open(csv_path, 'w', newline='') as file:

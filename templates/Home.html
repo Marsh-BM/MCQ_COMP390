@@ -27,14 +27,15 @@
             </div>
         </form>
 
-        <form id="file-upload-csv" action="/upload_csv/" method="post" enctype="multipart/form-data">
+        <form id="file-upload-csv" action="/upload_ans/" method="post" enctype="multipart/form-data">
             <div class="middle-part">
                 <div class="button_part">
-                    <input type="file" name="csv-file" id="csv-file-input" accept=".csv" hidden >
-                    <label for="csv-file-input" class="document-button">Upload CSV</label>
-                    <button type="button" id="delete-csv-btn" class="delete-btn">Delete CSV</button>
+                    <input type="file" name="ans-file" id="ans-file-input" accept=".csv, .pdf" hidden >
+                    <label for="ans-file-input" class="document-button">Upload Answer</label>
+                    <button type="button" id="delete-csv-btn" class="delete-btn">Delete Answer</button>
                 </div>
                 <div id="csv-preview" class="placeholder-image"></div>
+                <embed id="pdf-preview" type="application/pdf">
             </div> 
         </form>
         
@@ -42,8 +43,8 @@
             <div class="right-part">
                 <div class="button_part">
                     <input type="file" name="student-csv-file" id="student-csv-file-input" accept=".csv" hidden>
-                    <label for="student-csv-file-input" class="document-button">Upload Stu</label>
-                    <button type="button" id="delete-student-csv-btn" class="delete-btn">Delete Stu</button>
+                    <label for="student-csv-file-input" class="document-button">Upload Stuents</label>
+                    <button type="button" id="delete-student-csv-btn" class="delete-btn">Delete Stuents</button>
                 </div>
                 <div id="student-csv-preview" class="placeholder-image"></div>
             </div>
