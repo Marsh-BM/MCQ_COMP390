@@ -22,7 +22,6 @@ os.makedirs(app.config['UPLOAD_FOLDER_ANSWER'], exist_ok=True)
 os.makedirs(app.config['UPLOAD_FOLDER_STUDENTS'], exist_ok=True)
 os.makedirs(app.config['RESULT_FOLDER'], exist_ok=True)  # Ensure the result folder exists
 
-# 存储最近上传的PDF和CSV文件名
 uploaded_files = {
     'pdf': [],
     'ans': None,
@@ -88,11 +87,11 @@ def check_folders():
     pdf_folder = app.config['UPLOAD_FOLDER_PDF']
     ans_folder = app.config['UPLOAD_FOLDER_ANSWER']
     
-    # 检查文件夹是否为空
+
     is_pdf_empty = not os.listdir(pdf_folder)
     is_ans_empty = not os.listdir(ans_folder)
     
-    # 返回检查结果
+
     return jsonify({
         'is_pdf_empty': is_pdf_empty,
         'is_ans_empty': is_ans_empty
@@ -101,18 +100,18 @@ def check_folders():
 
 @app.route('/upload_pdf', methods=['POST'])
 def upload_pdf():
-    files = request.files.getlist('pdf-file')  # 获取所有上传的PDF文件
+    files = request.files.getlist('pdf-file') 
     if not files:
         return jsonify({'error': 'No file selected'}), 400
 
-    uploaded_files['pdf'].clear()  # 清除先前的文件列表
+    uploaded_files['pdf'].clear()  
 
     for file in files:
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file_path = os.path.join(app.config['UPLOAD_FOLDER_PDF'], filename)
             file.save(file_path)
-            uploaded_files['pdf'].append(file_path)  # 添加文件的完整路径到列表
+            uploaded_files['pdf'].append(file_path)  
         else:
             return jsonify({'error': 'File type not allowed'}), 400
 
@@ -122,7 +121,7 @@ def upload_pdf():
 
 @app.route('/upload_ans', methods=['POST'])
 def upload_ans():
-    file = request.files.get('file')  # 允许用户上传CSV或PDF文件
+    file = request.files.get('file') 
     if not file or file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
 
@@ -131,17 +130,17 @@ def upload_ans():
         file_extension = filename.rsplit('.', 1)[1].lower()
 
         if file_extension == 'csv':
-            # 处理上传的CSV文件
+            
             ans_csv_path = os.path.join(app.config['UPLOAD_FOLDER_ANSWER'], filename)
             file.save(ans_csv_path)
-            uploaded_files['ans'] = filename  # 更新最近上传的CSV文件名
+            uploaded_files['ans'] = filename  
             return jsonify({'message': 'CSV uploaded successfully.', 'filename': filename})
         elif file_extension == 'pdf':
-            # 处理上传的PDF文件，将其视为包含答案的答题卡
+            
             answer_pdf_path = os.path.join(app.config['UPLOAD_FOLDER_ANSWER'], filename)
             file.save(answer_pdf_path)
 
-            # 调用转换函数，将PDF转换为CSV格式的答案!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            
             try:
                 print("Start")
                 Qu_model_path = 'Question_Model/4CN_bz8_lr0.0005_ep45_3'
@@ -157,7 +156,7 @@ def upload_ans():
                 main(Qu_model_path,ID_model_path, ans_pdf_path, out_path, save_answer,save_questions,predict_csv)
                 convert_csv_format(predict_csv, os.path.join(app.config['UPLOAD_FOLDER_ANSWER'], 'Correct_Answer.csv'))
                 print("End")
-                # 删除原始 PDF 文件
+                # 
                 # os.remove(answer_pdf_path)
                 uploaded_files['ans'] = csv_file_path
 
@@ -197,7 +196,7 @@ def grade():
     print(uploaded_files['pdf'])
     print(uploaded_files['ans'])
     if uploaded_files['pdf'] and uploaded_files['ans']:
-        # 构建完整路径
+
         pdf_paths = 'uploaded_PDF'
         csv_path = os.path.join(app.config['UPLOAD_FOLDER_ANSWER'], uploaded_files['ans'])
         print(csv_path)
@@ -205,9 +204,8 @@ def grade():
         save_answer = 'Answer_area/test_new'
         save_questions = 'Validation/test_new'
         save_ID = 'ID_middle'
-        # 这个csv是中间值，学生的答案
         predict_csv = 'results_txt/ID_Question.csv' 
-        # 这个是最终与正确答案比较后的结果，也就是我要返回给用户的csv
+
         save_result = os.path.join(app.config['RESULT_FOLDER'], 'Student_Scores.csv')
         # Question_model = 'Question_Model/lr0.0005_ep10'
         # Question_model = 'lr0.0005_ep20_###'

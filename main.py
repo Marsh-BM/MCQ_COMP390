@@ -81,7 +81,7 @@ def compare_answers(standard_csv_path, prediction_csv_path, output_csv_path):
         # 写入每个学生的得分和带序号的答案
         for student_id, data in student_answers.items():
             sorted_answers = sorted(data['Answers'].items())
-            answer_str = ' '.join([f"{i}-{a}" for i, a in sorted_answers])  # 生成带序号的答案字符串
+            answer_str = ' '.join([f"{i}.{a}" for i, a in sorted_answers])  # 生成带序号的答案字符串
             row = [student_id, data['Page'], answer_str]
             row += [student_scores[student_id]['Parts'][p] for p in sorted(parts_set)]  # 按顺序添加每个部分的得分
             row.append(student_scores[student_id]['Total Score'])

@@ -2,25 +2,25 @@ import cv2
 import numpy as np
 import os
 def edge_detect(image):
-    # 转换为灰度图像
+    # Convert to grayscale
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    # 高斯滤波
-    blurred = cv2.GaussianBlur(gray, (5, 5), 0)  # 灰度图像, 高斯核大小, 标准差
-    # 边缘检测
+    # Gaussian filter
+    blurred = cv2.GaussianBlur(gray, (5, 5), 0)  # Grayscale image, Gaussian kernel size, standard deviation
+    # Edge detection
     edged = cv2.Canny(blurred, 50, 150)
     return edged
 
-# 轮廓检测
+# Edge detection
 def find_contours(image):
-    # 边缘检测
+    # Edge detection
     edged = edge_detect(image)
-    # 轮廓检测
+    # Contour detection
     contours, _ = cv2.findContours(edged, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     return contours
 
-# 裁剪图像
+# Crop images
 def crop(rotated, contours, h, w):
-    # 矩形四角坐标
+    # Coordinates of the rectangle
     contours = find_contours(rotated)
     c = max(contours, key=cv2.contourArea)
     rect = cv2.minAreaRect(c)
@@ -33,42 +33,42 @@ def crop(rotated, contours, h, w):
         x1, y1 = w - x1, h - y1
         x2, y2 = w - x2, h - y2
 
-    # 裁剪出矩形答题区域
+    # Crop the rectangular answer area
     answer_id = rotated[min(y1, y2):max(y1, y2), min(x1, x2):max(x1, x2)]
-    # 裁剪出学号区域
+    # Crop the ID area
     id_area = rotated[int(0.47*min(y1, y2)): int(0.93*min(y1, y2)),int(0.76*max(x1, x2)):int(0.98*max(x1, x2))]
     return answer_id, id_area
 
-# 旋转图像
+# rotaion image
 def deskew(image):
-    # 获取图像大小
+    # Get image size
     (h, w) = image.shape[:2]
 
-    # 轮廓检测
+    # Detect contours
     contours = find_contours(image)
 
-    # 画出轮廓
+
     # cv2.drawContours(image, contours, -1, (0, 255, 0), 3)
 
-    # 找到最大的轮廓
+    # Find the largest contour
     c = max(contours, key=cv2.contourArea)
 
-    # 矩形拟合
-    rect = cv2.minAreaRect(c)
+    # Find the largest contour
+    rect = cv2.minAreaRect(c) # get the min rectangle of the lagest contour
     box = cv2.boxPoints(rect)
     box = np.intp(box)
 
-    # 旋转矩形, 窄边为水平
-    angle = rect[2]  # 获取旋转角度
-    if rect[1][0] > rect[1][1]:
+    # Rotate rectangle, narrow side horizontal
+    angle = rect[2]  # Get the rotation angle
+    if rect[1][0] > rect[1][1]:# Whether the width of the rectangle is greater than its height
         angle = 90 + angle
 
-    # 旋转图像
-    center = (w // 2, h // 2)
-    M = cv2.getRotationMatrix2D(center, angle, 1.0)  # 获取旋转矩阵
-    rotated = cv2.warpAffine(image, M, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)  # 旋转图像
+    # Rotate the image
+    center = (w // 2, h // 2) # Determining the center of rotation
+    M = cv2.getRotationMatrix2D(center, angle, 1.0)  # Get rotation matrix
+    rotated = cv2.warpAffine(image, M, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)  # Rotate the image
 
-    # 裁剪图像
+    # Crop the image
     answer_area, id_area = crop(rotated, contours, h, w)
 
     return answer_area,id_area

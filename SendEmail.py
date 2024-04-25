@@ -31,28 +31,23 @@ def student_to_txt(csv_file_path, output_dir):
         
                 # 将答案字符串拆分为独立的答案项
                 answers = row['Answer'].split()  # Splitting the answers by space
-                wrong_answers = [ans for ans in answers if any(char.islower() for char in ans)]
+                wrong_answers = [ans for ans in answers if any(char.islower() or char == '-' for char in ans)]
                 # Format the wrong answers with their question numbers
                 wrong_answers_formatted = [f"{ans}" for i, ans in enumerate(wrong_answers)]
                 wrong_questions = ', '.join(wrong_answers_formatted) if wrong_answers else 'None'
                 student_file.write(f"Wrong Questions: {wrong_questions}\n")
 
 def read_students_info(csv_file_path):
-    """
-    读取包含学生学号、姓名和邮箱的CSV文件。
-    """
+
     students_info = []
     with open(csv_file_path, mode='r', encoding='utf-8-sig') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
-            # 现在也包括了学生的姓名
             students_info.append((row['ID'], row['Name'], row['Email']))
     return students_info
 
 def send_email_with_attachment(smtp_user, smtp_password, student_email, student_name, attachment_path):
-    """
-    发送带有成绩报告附件的邮件。
-    """
+
     # smtp_adress = ''
     # smtp_password=''
     smtp_server = "smtp.gmail.com"
@@ -61,9 +56,9 @@ def send_email_with_attachment(smtp_user, smtp_password, student_email, student_
     message = MIMEMultipart()
     message['From'] = smtp_user
     message['To'] = student_email
-    message['Subject'] = "考试成绩报告"
+    message['Subject'] = "Test grade report"
     
-    body = f"亲爱的 {student_name}，您的考试成绩报告已附在邮件中。"
+    body = f"Dear {student_name}，Your test score report is attached to the email."
     message.attach(MIMEText(body, 'plain'))
     
     with open(attachment_path, 'rb') as attachment:
@@ -79,10 +74,7 @@ def send_email_with_attachment(smtp_user, smtp_password, student_email, student_
         server.send_message(message)
 
 def send_reports_to_students(grades_csv_path,students_info_csv_path, txt_files_dir, smtp_user, smtp_password):
-    """
-    对CSV文件中的每个学生发送其成绩报告，包括学生的姓名。
-    根据提供的学生信息CSV文件获取学生的邮箱和姓名。
-    """
+
     students_info = read_students_info(students_info_csv_path)
     for student_id, student_name, student_email in students_info:
         attachment_path = os.path.join(txt_files_dir, f"{student_id}.txt")
