@@ -6,6 +6,12 @@ from SendEmail import student_to_txt, send_reports_to_students
 import shutil
 from flask import jsonify
 
+# 介绍一下这个网页的功能
+# 1. 上传PDF文件   2. 上传答案文件  3. 上传学生信息文件  4. 生成学生成绩文件  5. 下载学生成绩文件
+# 6. 删除上传的PDF文件  7. 删除上传的答案文件  8. 删除上传的学生信息文件
+# 9. 查看上传的PDF文件  10. 查看上传的答案文件  11. 查看上传的学生信息文件
+# 12. 查看上传的文件夹是否为空
+
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 

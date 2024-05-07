@@ -58,7 +58,7 @@ class MCQScanner:
                 y = start_y + row * (question_height) + i * (v_space)
                 # print(f"X:{x}")
                 # print(f"Y:{y}")
-
+ 
                 cropped_image = self.image[y:y + question_height, x:x + question_width]
                 cropped_images.append(cropped_image)  # 添加到列表而不是立即预测
 

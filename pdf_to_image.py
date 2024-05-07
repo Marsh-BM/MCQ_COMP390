@@ -7,7 +7,6 @@ from mcq_scanner import MCQScanner
 from PIL import Image
 import csv
 from ID_scanner import IDScanner
-import torch
 import glob
 
 def pdf_to_png(pdf_path):
@@ -69,12 +68,10 @@ def process_images(images,save_answer,save_questions,Qu_model,ID_model,device):
         predicted_questions=scanner_questions.crop_and_save_questions(start_x, start_y, question_width, question_height, h_space, v_space, rows,
                                         columns, save_path_Questions,page_num)
         
- 
         #  For each question on this page, write their information to a CSV file
         for question in predicted_questions:
             row = ([predicted_id, question['page_num'], question['question_number'], question['prediction']])
             rows_to_write.append(row)
-
 
     return rows_to_write
 

@@ -72,7 +72,7 @@ class Questions_model(nn.Module):
         self.bn5 = nn.BatchNorm1d(512)  
         self.fc2 = nn.Linear(512, 256)  
         self.bn6 = nn.BatchNorm1d(256)  
-        self.fc3 = nn.Linear(256, 7)  
+        self.fc3 = nn.Linear(256, 6)  
         # Used to reduce model overfitting， remove 50% features randomly
         self.dropout = nn.Dropout(0.5)
     
@@ -225,7 +225,8 @@ def main_train(model_filename):
 
 
 if __name__ == "__main__":
-    model_filename = '4CN_bz8_lr0.0005_ep45_3'  
+    # model_filename = '4CN_bz8_lr0.0005_ep45_3'  
+    model_filename = 'Final_model'  
     # model_filename = 'ID_lr0.0005_ep10'
     main_train(model_filename)
     # main_notrain(model_filename)

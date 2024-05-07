@@ -56,7 +56,7 @@ class ID_model(nn.Module):
         self.conv3 = nn.Conv2d(64, 128, kernel_size=3, padding=1)  # 第三个卷积层
         self.pool = nn.MaxPool2d(kernel_size=2, stride=2)  # 最大池化层，用于降维
         self.fc1 = nn.Linear(128 * 23 * 3, 512)  # 第一个全连接层，数字需要根据前面层的输出调整
-        self.fc2 = nn.Linear(512, 10)  # 第二个全连接层，输出7个类别
+        self.fc2 = nn.Linear(512, 10)  # 第二个全连接层，输出10个类别
         self.dropout = nn.Dropout(0.5)  # Dropout层，用于减少过拟合
 
 
