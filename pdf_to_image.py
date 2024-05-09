@@ -103,12 +103,3 @@ def initialize_csv(csv_path):
 
 
 
-# if __name__ == "__main__":
-#     images = pdf_to_png('PDF_Document/test_data.pdf')
-#     save_answer = 'Answer_area_3/Test'
-#     save_questions = 'test_data_3/C'
-#     Qu_model = ' '
-#     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-#     save_csv = ' '
-#     process_images(enumerate(images),save_answer=save_answer,save_questions=save_questions,Qu_model=Qu_model,device=device,save_csv=save_csv)
-

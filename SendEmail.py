@@ -5,7 +5,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
-from password_user import return_user,return_password
+
 
 def student_to_txt(csv_file_path, output_dir):
     with open(csv_file_path, mode='r', encoding='utf-8-sig') as file:
@@ -29,7 +29,7 @@ def student_to_txt(csv_file_path, output_dir):
                     student_file.write(f"{part}: {row[part]}\n")
                 
         
-                # 将答案字符串拆分为独立的答案项
+                
                 answers = row['Answer'].split()  # Splitting the answers by space
                 wrong_answers = [ans for ans in answers if any(char.islower() or char == '-' for char in ans)]
                 # Format the wrong answers with their question numbers
@@ -88,14 +88,12 @@ def send_reports_to_students(grades_csv_path,students_info_csv_path, txt_files_d
 
 
 if __name__ == "__main__":
-    grades_csv_path = 'results_txt\Student_Scores.csv' # 成绩CSV文件的路径
-    students_info_csv_path = 'results_txt\Information of students.csv' # 学生信息CSV文件的路径
-    output_dir = 'results_txt\Feedback' # 存放生成文本文件的目录
-    smtp_user = 'marshbm0518@gmail.com' # 你的Gmail邮箱地址
+    grades_csv_path = 'results_txt\Student_Scores.csv'
+    students_info_csv_path = 'results_txt\Information of students.csv' 
+    output_dir = 'results_txt\Feedback' 
+    smtp_user = 'marshbm0518@gmail.com' 
     smtp_password = 'xbok hbdr fhxp hkyh'
 
-    # 首先，生成每个学生的成绩报告文本文件
     student_to_txt(grades_csv_path, output_dir)
 
-    # 然后，发送成绩报告给每位学生
     send_reports_to_students(grades_csv_path, students_info_csv_path, output_dir, smtp_user, smtp_password)

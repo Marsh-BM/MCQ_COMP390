@@ -1,4 +1,3 @@
-# 导入必要的库
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -72,7 +71,7 @@ class Questions_model(nn.Module):
         self.bn5 = nn.BatchNorm1d(512)  
         self.fc2 = nn.Linear(512, 256)  
         self.bn6 = nn.BatchNorm1d(256)  
-        self.fc3 = nn.Linear(256, 6)  
+        self.fc3 = nn.Linear(256, 7)  
         # Used to reduce model overfitting， remove 50% features randomly
         self.dropout = nn.Dropout(0.5)
     

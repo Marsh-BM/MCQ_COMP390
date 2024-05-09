@@ -1,16 +1,16 @@
-// 当 PDF 文件选择后的处理函数
+// Handling function when a PDF file is selected
 function handlePDFUpload(event) {
-    var files = event.target.files; // 获取选中的文件列表
-    if (files.length === 0) return; // 如果没有文件被选中，直接返回
+    var files = event.target.files; 
+    if (files.length === 0) return; 
 
 
 
-    // 弹出确认提交的对话框
+    // Pop-up dialog to confirm submission
     if (!confirm("Do you want to submit these PDF files?")) {
-        return; // 如果用户选择取消，什么也不做
+        return; 
     }
 
-    // 准备表单数据并上传
+    // Prepare form data and upload
     var formData = new FormData();
     Array.from(files).forEach(file => {
         formData.append('pdf-file', file);
@@ -23,31 +23,24 @@ function handlePDFUpload(event) {
     .then(response => response.json())
     .then(data => {
         console.log('PDF Upload Success:', data);
-        // 这里可以添加上传成功后的其他操作
         displayUploadedFiles();
     })
     .catch(error => {
         console.error('Error uploading PDF:', error);
     });
-
-    // 显示文件名
-    
 }
 
-// 当 CSV 文件选择后的处理函数
+// Handling function when CSV file is selected
 function handleCSVUpload(event) {
-    var file = event.target.files[0]; // 获取选中的CSV文件
-    if (!file) return; // 如果没有文件被选中，直接返回
+    var file = event.target.files[0]; 
+    if (!file) return; 
 
-    // 显示文件名
-    // displayUploadedFiles([file], 'csv'); // 因为只有一个文件，所以用数组包装
-
-    // 弹出确认提交的对话框
+    // Pop-up dialog to confirm submission
     if (!confirm("Do you want to submit this CSV file?")) {
-        return; // 如果用户选择取消，什么也不做
+        return; 
     }
 
-    // 准备表单数据并上传
+    // Prepare form data and upload
     var formData = new FormData();
     formData.append('file', file);
 
@@ -59,8 +52,8 @@ function handleCSVUpload(event) {
     .then(data => {
         console.log('Answer Upload Success:', data);
         if(file.type === 'text/csv'){
-            previewCSV(event); // 显示CSV内容预览
-            document.getElementById('pdf-preview').style.display = 'none'; // 隐藏 PDF 预览
+            previewCSV(event); 
+            document.getElementById('pdf-preview').style.display = 'none'; 
         }else if (file.type === 'application/pdf'){
             previewPDF(file)
             document.getElementById('csv-preview').style.display = 'none';
@@ -104,28 +97,28 @@ function handleStudentCSVUpload(event) {
 
 
 
-// 用于显示上传的文件列表
+// Used to display a list of uploaded files
 function displayUploadedFiles() {
     var output = document.getElementById('pdf-file-names');
 
-    // 发送请求到 Flask 服务器获取文件列表
+    // Send a request to the Flask server for a list of files.
     fetch('/files/pdf').then(response => {
         if (!response.ok) {
             throw new Error('Network response was not ok ' + response.statusText);
         }
         return response.json();
     }).then(files => {
-        // 清空之前的内容
+        // Clear the previous content
         output.innerHTML = '';
 
-        // 显示文件列表
+        // Display the list of files
         files.forEach((file, index) => {
             var fileNameDisplay = document.createElement('p');
             fileNameDisplay.textContent = `File ${index + 1}: ${file}`;
             output.appendChild(fileNameDisplay);
         });
 
-        // 显示输出
+        // Display output
         output.style.display = 'block';
     }).catch(error => {
         console.error('Failed to fetch files:', error);
@@ -133,9 +126,9 @@ function displayUploadedFiles() {
 }
 
 
-// 显示CSV文件内容的预览
+// Displays a preview of the contents of the CSV file
 function previewCSV(event) {
-    var file = event.target.files[0]; // 获取选中的CSV文件
+    var file = event.target.files[0];
     if (!file) return;
 
     var reader = new FileReader();
@@ -148,17 +141,17 @@ function previewCSV(event) {
     reader.readAsText(file);
 }
 
-// 显示PDF文件内容的预览
+// Display a preview of the contents of the PDF file
 function previewPDF(file) {
-    var url = URL.createObjectURL(file); // 创建一个指向该文件的 URL
+    var url = URL.createObjectURL(file); // Create a URL to the file
     var pdfPreview = document.getElementById('pdf-preview');
     pdfPreview.src = url;
-    pdfPreview.style.display = 'block'; // 显示预览
+    pdfPreview.style.display = 'block'; // Show preview
 }
 
-// 显示Students CSV文件内容的预览
+// Show a preview of the contents of the Students CSV file.
 function previewStudentsCSV(event) {
-    var file = event.target.files[0]; // 获取选中的CSV文件
+    var file = event.target.files[0]; // Get the selected CSV file
     if (!file) return;
 
     var reader = new FileReader();
@@ -171,7 +164,7 @@ function previewStudentsCSV(event) {
     reader.readAsText(file);
 }
 
-// 辅助函数，将CSV文本转换为HTML表格
+// helper function to convert CSV text to HTML tables
 function csvToTable(csv) {
     var lines = csv.split('\n');
     var html = '<table>';
@@ -246,7 +239,7 @@ function deleteStudentCSV() {
     });
 }
 
-// 初始化函数，用于设置事件监听器
+// Initialization function to set up event listeners.
 function initialize() {
     var pdfFileInput = document.getElementById('pdf-file-input');
     if (pdfFileInput) {
@@ -292,42 +285,41 @@ function initialize() {
 
 document.addEventListener('DOMContentLoaded', initialize);
 document.getElementById('experience-btn').addEventListener('click', function() {
-    const btn = this; // 保存按钮引用，以便在Promise链中使用
-
-    // 检查文件夹
+    const btn = this; 
+    // Check if the PDF and CSV folders are empty
     fetch('/check_folders')
     .then(response => response.json())
     .then(data => {
         if (data.is_pdf_empty || data.is_csv_empty) {
             alert("PDF or CSV folders are empty. Please upload files before grading.");
             btn.style.display = 'block';
-            return; // 终止后续操作
+            return; 
         }
-       
+        // Hide the button
         btn.style.display = 'none';
-        // 显示加载动画
+        // Display loader
         const loader = document.getElementById('loader');
         loader.style.display = 'block';
 
-        // 发送POST请求到后端的/grade路由
+        // Send a request to the server to grade the PDF files
         return fetch('/grade', {
             method: 'POST',
         });
     })
     .then(response => {
-        if (!response) return; // 如果之前终止了操作，这里直接返回
+        if (!response) return; 
         
-        loader.style.display = 'none'; // 响应接收后隐藏加载动画
+        loader.style.display = 'none'; 
 
         if(response.ok) {
-            return response.blob(); // 假设响应是一个要下载的CSV文件
+            return response.blob(); 
         }
         throw new Error('Network response was not ok.');
     })
     .then(blob => {
-        if (!blob) return; // 如果之前终止了操作，这里直接返回
+        if (!blob) return; 
         
-        // 创建URL并模拟<a>点击以下载文件
+        // Download the graded results
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
