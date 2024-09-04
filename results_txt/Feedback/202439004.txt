@@ -1,7 +1,0 @@
-ID: 202439004
-Total Marks: 110
-Part 1: 25
-Part 2: 25
-Part 3: 30
-Part 4: 30
-Wrong Questions: 26-e, 27-e, 28-e, 29-e, 30-e, 56-e, 57-e, 58-e, 59-e, 60-e

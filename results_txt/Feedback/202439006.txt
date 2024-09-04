@@ -1,7 +1,0 @@
-ID: 202439006
-Total Marks: 110
-Part 1: 25
-Part 2: 30
-Part 3: 30
-Part 4: 25
-Wrong Questions: 6-c, 7-e, 8-e, 9-c, 10-d, 116-d, 117-d, 118-b, 119-d, 120-a

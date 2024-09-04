@@ -16,10 +16,8 @@ import os
 os.environ['KMP_DUPLICATE_LIB_OK']='TRUE'
 
 # Environment setup and global variables
-dataset_path = 'train_data_3'
+dataset_path = 'train_data_3' #Dataset3
 test_data_path = 'test_data_3'
-# dataset_path = 'ID_train'
-# test_data_path = 'ID_test'
 torch.manual_seed(0)  # Ensure reproducibility
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")  # Check and set the device
 print(f"Using {device} device")
