@@ -1,7 +1,0 @@
-ID: 202439014
-Total Marks: 110
-Part 1: 25
-Part 2: 25
-Part 3: 30
-Part 4: 30
-Wrong Questions: 11-d, 12-c, 13-b, 14-c, 15-d, 41-c, 42-c, 43-c, 44-c, 45-c

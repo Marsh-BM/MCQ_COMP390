@@ -6,12 +6,6 @@ from SendEmail import student_to_txt, send_reports_to_students
 import shutil
 from flask import jsonify
 
-# 介绍一下这个网页的功能
-# 1. 上传PDF文件   2. 上传答案文件  3. 上传学生信息文件  4. 生成学生成绩文件  5. 下载学生成绩文件
-# 6. 删除上传的PDF文件  7. 删除上传的答案文件  8. 删除上传的学生信息文件
-# 9. 查看上传的PDF文件  10. 查看上传的答案文件  11. 查看上传的学生信息文件
-# 12. 查看上传的文件夹是否为空
-
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
@@ -198,7 +192,7 @@ def upload_student_csv():
 
 @app.route('/grade', methods=['POST'])
 def grade():
-    print('开始运行')
+    print('Run grading process.')
     print(uploaded_files['pdf'])
     print(uploaded_files['ans'])
     if uploaded_files['pdf'] and uploaded_files['ans']:
@@ -209,18 +203,9 @@ def grade():
         out_path = "JPG_Document/TruthData"
         save_answer = 'Answer_area/test_new'
         save_questions = 'Validation/test_new'
-        save_ID = 'ID_middle'
         predict_csv = 'results_txt/ID_Question.csv' 
 
         save_result = os.path.join(app.config['RESULT_FOLDER'], 'Student_Scores.csv')
-        # Question_model = 'Question_Model/lr0.0005_ep10'
-        # Question_model = 'lr0.0005_ep20_###'
-        # Question_model = 'lr0.0005_ep10_###'
-        # Question_model = 'lr0.0005_ep20_###_new'
-        # Question_model = 'bz8_lr0.0005_ep40_1'
-        # Question_model = 'bz8_lr0.0005_ep40_2'
-        # Question_model = 'bz8_lr0.0005_ep25_2'
-        # Question_model = 'bz8_lr0.0005_ep45_3'
         Question_model = 'Question_Model/4CN_bz8_lr0.0005_ep45_3'
         ID_model = 'ID_Model/ID_lr0.00005_ep30'
 
@@ -237,16 +222,16 @@ def grade():
 
 
         
-        # 下载结果
+        # return jsonify({'message': 'Grading process completed successfully.', 'result_path': save_result})
         response = send_from_directory(app.config['RESULT_FOLDER'], 'Student_Scores.csv', as_attachment=True)
         
-        # 删除提供的PDF和CSV文件目录下的所有文件
+        # Delete the uploaded files after grading
         try:
             pdf_folder = app.config['UPLOAD_FOLDER_PDF']
             csv_folder = app.config['UPLOAD_FOLDER_ANSWER']
             student_folder = app.config['UPLOAD_FOLDER_STUDENTS']
             feedback = 'Feedback'
-            # 删除PDF目录下的所有文件
+            # Delete the uploaded files
             for filename in os.listdir(pdf_folder):
                 file_path = os.path.join(pdf_folder, filename)
                 if os.path.isfile(file_path) or os.path.islink(file_path):
@@ -254,7 +239,7 @@ def grade():
                 elif os.path.isdir(file_path):
                     shutil.rmtree(file_path)
             
-            # 删除CSV目录下的所有文件
+            # Delete the uploaded files
             for filename in os.listdir(csv_folder):
                 file_path = os.path.join(csv_folder, filename)
                 if os.path.isfile(file_path) or os.path.islink(file_path):
@@ -262,7 +247,7 @@ def grade():
                 elif os.path.isdir(file_path):
                     shutil.rmtree(file_path)
 
-            # 删除Students CSV目录下的所有文件
+            # Delete the uploaded files
             for filename in os.listdir(student_folder):
                 file_path = os.path.join(student_folder, filename)
                 if os.path.isfile(file_path) or os.path.islink(file_path):
@@ -270,7 +255,7 @@ def grade():
                 elif os.path.isdir(file_path):
                     shutil.rmtree(file_path)
 
-            # 删除Feedback目录下的所有文件
+            # Delete the uploaded files
             for filename in os.listdir(feedback):
                 file_path = os.path.join(feedback, filename)
                 if os.path.isfile(file_path) or os.path.islink(file_path):

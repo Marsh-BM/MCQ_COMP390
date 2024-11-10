@@ -55,10 +55,10 @@ body, html {
 
 
 .button_part {
-    display: flex; /* 使用flex布局使按钮水平排列 */
-    justify-content: start; /* 按钮靠左排列 */
-    width: 100%; /* 容器占满整个宽度 */
-    margin-bottom: 10px; /* 与预览区域的间距 */
+    display: flex; 
+    justify-content: start; 
+    width: 100%; 
+    margin-bottom: 10px; 
 }
 
 #csv-preview {

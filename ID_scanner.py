@@ -17,7 +17,7 @@ class IDScanner:
         #     os.makedirs(save_dir)
 
     def preprocess(self, images):
-        """批量图像预处理以匹配模型的输入要求。"""
+        # Preprocess the images
         processed_images = []
         for image in images:
             transform = transforms.Compose([
@@ -27,19 +27,17 @@ class IDScanner:
                 transforms.ToTensor(),
                 transforms.Normalize(mean=[0.485], std=[0.229]),
             ])
-            processed_image = transform(image).unsqueeze(0)  # 单个图像处理
+            processed_image = transform(image).unsqueeze(0)  
             processed_images.append(processed_image)
         
-        return torch.cat(processed_images, dim=0)  # 合并所有处理后的图像为一个批次
+        return torch.cat(processed_images, dim=0)  
     
     def predict_digits(self, images):
-        """批量使用模型预测多个图像的数字。"""
-        images = self.preprocess(images).to(self.device)  # 预处理整个图像批次
-        self.model.eval()  # 设置模型为评估模式
-        with torch.no_grad():  # 不计算梯度，加速推理
+        images = self.preprocess(images).to(self.device)  
+        self.model.eval()  
+        with torch.no_grad():  
             outputs = self.model(images)
             _, predicted = torch.max(outputs, 1)
-            # 使用类内定义的映射关系将预测的索引转换为对应的数字
             predicted_digits = [self.idx_to_answer[pred.item()] for pred in predicted]
         
         return predicted_digits
@@ -57,10 +55,7 @@ class IDScanner:
         # Calculate the width of each part
         part_width = available_width // 9
 
-        output_dir = 'ID_middle'
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
- 
+        # Split the image into 9 parts
         for i in range(9):
             start_x = i * (part_width + 4)
             end_x = start_x + part_width
@@ -73,9 +68,8 @@ class IDScanner:
             # # Save the cropped image
             # output_path = os.path.join(output_dir, f'{page_num}_part_{i+1}.jpg')
             # cv2.imwrite(output_path, cropped_image)
-        predicted_ids = self.predict_digits(cropped_images)  # 批量预测
+        predicted_ids = self.predict_digits(cropped_images) 
         
-        # 遍历裁剪后的图像并保存到指定的目录
         # for i, cropped_image in enumerate(cropped_images):
         #     output_path = os.path.join(output_dir, f'{page_num}_part_{i+1}.jpg')
         #     cv2.imwrite(output_path, cropped_image)
@@ -90,7 +84,7 @@ class IDScanner:
     
 # if __name__ == '__main__':
 #     # Read the image
-#     image = cv2.imread('id_train0.png')    # 缩小图像大小
+#     image = cv2.imread('id_train0.png')    
 #     # image = cv2.imread('Batman.png') 
 #     scale_percent = 50 # percent of original size
 #     width = int(image.shape[1] * scale_percent / 100)
@@ -102,7 +96,6 @@ class IDScanner:
 #     # Deskew the image
 #     deskewed = deskew(image)
 
-#     # 裁剪图像
 
 #     cv2.imshow('Deskewed', deskewed)
 #     cv2.waitKey(0)
