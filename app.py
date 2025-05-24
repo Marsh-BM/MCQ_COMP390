@@ -22,6 +22,7 @@ os.makedirs(app.config['UPLOAD_FOLDER_ANSWER'], exist_ok=True)
 os.makedirs(app.config['UPLOAD_FOLDER_STUDENTS'], exist_ok=True)
 os.makedirs(app.config['RESULT_FOLDER'], exist_ok=True)  # Ensure the result folder exists
 
+# Dictionary to keep track of uploaded files
 uploaded_files = {
     'pdf': [],
     'ans': None,
